@@ -6,7 +6,7 @@ export default (extension: string| undefined): boolean => {
   }
 
   const fileParts = extension.split('.');
-  if (fileParts.length === 0) {
+  if (fileParts.length === 0 || fileParts.length === 1) {
     return false;
   }
 

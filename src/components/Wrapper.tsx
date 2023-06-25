@@ -1,7 +1,8 @@
 import { StoreContext } from '@/StoreContext';
+import { Component, JSX, onMount, useContext } from 'solid-js';
+import { appLocalDataDir } from '@tauri-apps/api/path';
 import { invoke } from '@tauri-apps/api';
-import { Component, JSX, createSignal, onMount, useContext } from 'solid-js';
-import LoadingIndicator from './LoadingIndicator';
+import DirEntry from '@/types/DirEntry';
 
 interface WrapperProps {
   children: JSX.Element;
@@ -10,23 +11,28 @@ interface WrapperProps {
 const Wrapper: Component<WrapperProps> = ({ children }: WrapperProps) => {
   const contextValue = useContext(StoreContext);
   const store = contextValue?.store;
-  const [isLoading, setIsLoading] = createSignal(false);
 
   onMount(async () => {
-    try {
-      setIsLoading(true);
-      const data = await invoke<any[]>('read_directory', { pathStr: '/Volumes/ExternalHDD/' });
-      store?.setDirDataValue(data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
+    const appDataDirPath = await appLocalDataDir();
+    await invoke('create_directory_if_not_exists', { dirPath: `${appDataDirPath}` });
+    const directoryData = await invoke('file_exists', { filePath: `${appDataDirPath + '/directory_data.txt'}` });
+    if (!directoryData) {
+      const result = await invoke<DirEntry[]>('read_directory', { pathStr: '/Volumes/ExternalHDD/' });
+      await invoke('create_or_read_file', {
+        params: { filename: `${appDataDirPath + '/directory_data.txt'}`, data: result.map((item) => item.path) },
+      });
+      store?.setDirDataValue(result);
+    } else {
+      const result = await invoke<string[]>('create_or_read_file', {
+        params: { filename: `${appDataDirPath + '/directory_data.txt'}`, data: [] },
+      });
+      store?.setDirDataValue(result);
     }
   });
 
   return (
     <div class="h-screen w-screen bg-black overflow-hidden text-white">
       {children}
-      <LoadingIndicator isLoading={isLoading()} />
     </div>
   );
 };

@@ -15,7 +15,7 @@ const App: Component = () => {
         <Wrapper>
           <WindowDragHandle />
           <SideBar />
-          <div class="max-w-2xl mx-auto h-[calc(100%-theme(space[8]))]">
+          <div class="max-w-3xl mx-auto h-[calc(100%-theme(space[8]))]">
             <Routes>
               <Route path="/" component={Home} />
               <Route path="/folder/*path" component={Folder} />
