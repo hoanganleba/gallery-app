@@ -1,7 +1,11 @@
-import { Component } from 'solid-js';
+import { Component, ComponentProps, JSXElement } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 
-const TitleBar: Component = ({ children }) => {
+interface TitlebarProps extends ComponentProps<any> {
+  children: JSXElement;
+}
+
+const Titlebar: Component<TitlebarProps> = (props: TitlebarProps) => {
   const startDragging = async (event: Event) => {
     event.stopPropagation();
     event.preventDefault();
@@ -13,8 +17,10 @@ const TitleBar: Component = ({ children }) => {
     await appWindow.toggleMaximize();
   };
   return (
-    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-neutral-950 h-8"></div>
+    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-neutral-950 h-10">
+      {props.children}
+    </div>
   );
 };
 
-export default TitleBar;
+export default Titlebar;

@@ -1,5 +1,5 @@
 export default (extension: string): boolean => {
-  const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.wmv'];
+  const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'wmv'];
 
   if (!extension) {
     return false;
