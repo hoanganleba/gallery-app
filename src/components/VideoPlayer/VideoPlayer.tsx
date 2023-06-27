@@ -83,7 +83,7 @@ const VideoPlayer: Component<VideoPlayerProps> = (props) => {
           videoRef = video;
           if (video && !videoMounted()) handleVideoMount();
         }}
-        class="w-full z-50"
+        class="w-full z-50 h-auto"
         src={props.src}
       />
       <div

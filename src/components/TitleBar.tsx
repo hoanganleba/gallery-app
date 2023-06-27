@@ -1,18 +1,20 @@
 import { Component } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 
-const WindowDragHandle: Component = () => {
+const TitleBar: Component = ({ children }) => {
   const startDragging = async (event: Event) => {
     event.stopPropagation();
     event.preventDefault();
     await appWindow.startDragging();
   };
   const toggleMaximize = async (event: Event) => {
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     event.preventDefault();
-    await appWindow.toggleMaximize()
-  } 
-  return <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="flex-none h-8"></div>;
+    await appWindow.toggleMaximize();
+  };
+  return (
+    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-neutral-950 h-8"></div>
+  );
 };
 
-export default WindowDragHandle;
+export default TitleBar;
