@@ -11,10 +11,10 @@ import VideoView from './components/VideoView';
 const App: Component = () => {
   const [images, setImages] = createSignal<DirEntry[]>([]);
   const [videos, setVideos] = createSignal<DirEntry[]>([]);
-  const [viewType, setViewType] = createSignal('video');
+  const [viewType, setViewType] = createSignal('image');
 
   onMount(async () => {
-    const result = await invoke<DirEntry[]>('read_directory', { pathStr: '/Users/hoanganleba/Downloads/aaa' });
+    const result = await invoke<DirEntry[]>('read_directory', { pathStr: '/Volumes/ExternalHDD' });
     setImages(shuffleArray(result.filter((item) => isImageExtension(item.path))));
     setVideos(shuffleArray(result.filter((item) => isVideoExtension(item.path))));
   });
