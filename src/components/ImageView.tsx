@@ -19,6 +19,10 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
   const nextImage = () => imageIndex() < props.images.length - 1 && setImageIndex(imageIndex() + 1);
 
   createEffect(on(imageIndex, () => setScale(1)));
+  createEffect(() => {
+    props.images
+    setImageIndex(0)
+  });
 
   const handleKeyDown = (event: any) => {
     if (event.key === 'ArrowRight') {
@@ -47,7 +51,8 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
       <>
         <button
           onClick={prevImage}
-          class="absolute rounded-full p-3 bg-neutral-800/80 z-50 top-1/2 -translate-y-1/2 left-8 text-neutral-50/80"
+          disabled={imageIndex() === 0}
+          class="absolute disabled:opacity-30 rounded-full p-3 bg-neutral-800/80 z-50 top-1/2 -translate-y-1/2 left-8 text-neutral-50/80"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
             <path
@@ -65,7 +70,8 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
         />
         <button
           onClick={nextImage}
-          class="absolute rounded-full p-3 bg-neutral-800/80 z-50 top-1/2 -translate-y-1/2 right-8 text-neutral-50/80"
+          disabled={imageIndex() === props.images.length - 1}
+          class="absolute disabled:opacity-30 rounded-full p-3 bg-neutral-800/80 z-50 top-1/2 -translate-y-1/2 right-8 text-neutral-50/80"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
             <path

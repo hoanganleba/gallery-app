@@ -1,6 +1,6 @@
 import DirEntry from '@/types/DirEntry';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { Component, ComponentProps, Show, createSignal } from 'solid-js';
+import { Component, ComponentProps, Show, createEffect, createSignal } from 'solid-js';
 import LoadingSpinners from './LoadingSpinners';
 import isEmptyArray from '@/utils/isEmptyArray';
 
@@ -12,6 +12,12 @@ const VideoView: Component<VideoViewProps> = (props: VideoViewProps) => {
   const [videoIndex, setVideoIndex] = createSignal(0);
   const prevVideo = () => videoIndex() > 0 && setVideoIndex(videoIndex() - 1);
   const nextVideo = () => videoIndex() < props.videos.length - 1 && setVideoIndex(videoIndex() + 1);
+
+  createEffect(() => {
+    props.images
+    setVideoIndex(0)
+  });
+  
   return (
     <Show when={!isEmptyArray(props.videos)} fallback={<LoadingSpinners />}>
       <>
