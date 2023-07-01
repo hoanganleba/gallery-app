@@ -2,7 +2,7 @@ import { Component, ComponentProps, JSXElement } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 
 interface TitlebarProps extends ComponentProps<any> {
-  children: JSXElement;
+  children?: JSXElement;
 }
 
 const Titlebar: Component<TitlebarProps> = (props: TitlebarProps) => {
