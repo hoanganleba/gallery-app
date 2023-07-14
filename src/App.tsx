@@ -39,11 +39,11 @@ const App: Component = () => {
       async () => {
         setImages([]);
         setVideos([]);
-        setViewType('image')
+        setViewType('image');
         const result = await invoke<DirEntry[]>('read_directory', { pathStr: directoryPath() });
         setImages(shuffleArray(result.filter((item) => isImageExtension(item.path))));
         setVideos(shuffleArray(result.filter((item) => isVideoExtension(item.path))));
-        isEmptyArray(images()) && setViewType('video')
+        isEmptyArray(images()) && setViewType('video');
       },
       { defer: true }
     )
@@ -93,16 +93,16 @@ const App: Component = () => {
               </Show>
             </div>
           </TitleBar>
-          <div class="flex justify-center items-center h-full w-full p-10">
-            <Switch>
-              <Match when={viewType() === 'image'}>
+          <Switch>
+            <Match when={viewType() === 'image'}>
+              <div class="flex justify-center items-center h-full w-full p-10">
                 <ImageView images={images()} />
-              </Match>
-              <Match when={viewType() === 'video'}>
-                <VideoView videos={videos()} />
-              </Match>
-            </Switch>
-          </div>
+              </div>
+            </Match>
+            <Match when={viewType() === 'video'}>
+              <VideoView videos={videos()} />
+            </Match>
+          </Switch>
         </Match>
         <Match when={isStringEmpty(directoryPath())}>
           <TitleBar />
