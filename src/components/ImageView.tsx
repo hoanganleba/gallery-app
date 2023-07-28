@@ -4,9 +4,11 @@ import { Component, ComponentProps, Show, createEffect, createSignal, on, onClea
 import LoadingSpinners from './LoadingSpinners';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { HiSolidChevronRight, HiSolidChevronLeft, HiSolidMagnifyingGlassMinus, HiSolidMagnifyingGlassPlus } from 'solid-icons/hi';
+import { FiImage } from 'solid-icons/fi';
 
 interface ImageViewProps extends ComponentProps<any> {
   images: DirEntry[];
+  onVideoClicked: () => void;
 }
 
 const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
@@ -77,6 +79,9 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
           <button onClick={downScale} class="p-3 text-neutral-50/80">
             <HiSolidMagnifyingGlassMinus class="w-5 h-5" />
           </button>
+          <button onClick={props.onVideoClicked} class="text-neutral-50">
+                    <FiImage class="h-6 w-6" />
+                </button>
         </div>
       </>
     </Show>

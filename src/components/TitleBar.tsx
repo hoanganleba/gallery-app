@@ -17,9 +17,7 @@ const Titlebar: Component<TitlebarProps> = (props: TitlebarProps) => {
     await appWindow.toggleMaximize();
   };
   return (
-    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-neutral-950 h-10">
-      {props.children}
-    </div>
+    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-transparent h-8"></div>
   );
 };
 
