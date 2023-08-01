@@ -3,7 +3,12 @@ import isEmptyArray from '@/utils/isEmptyArray';
 import { Component, ComponentProps, Show, createEffect, createSignal, on, onCleanup } from 'solid-js';
 import LoadingSpinners from './LoadingSpinners';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { HiSolidChevronRight, HiSolidChevronLeft, HiSolidMagnifyingGlassMinus, HiSolidMagnifyingGlassPlus } from 'solid-icons/hi';
+import {
+  HiSolidChevronRight,
+  HiSolidChevronLeft,
+  HiSolidMagnifyingGlassMinus,
+  HiSolidMagnifyingGlassPlus,
+} from 'solid-icons/hi';
 import { FiImage } from 'solid-icons/fi';
 
 interface ImageViewProps extends ComponentProps<any> {
@@ -23,8 +28,8 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
 
   createEffect(on(imageIndex, () => setScale(1)));
   createEffect(() => {
-    props.images
-    setImageIndex(0)
+    props.images;
+    setImageIndex(0);
   });
 
   const handleKeyDown = (event: any) => {
@@ -51,7 +56,7 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
 
   return (
     <Show when={!isEmptyArray(props.images)} fallback={<LoadingSpinners />}>
-      <>
+      <div class="flex justify-center items-center h-full w-full p-8">
         <button
           onClick={prevImage}
           disabled={imageIndex() === 0}
@@ -80,10 +85,10 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
             <HiSolidMagnifyingGlassMinus class="w-5 h-5" />
           </button>
           <button onClick={props.onVideoClicked} class="text-neutral-50">
-                    <FiImage class="h-6 w-6" />
-                </button>
+            <FiImage class="h-6 w-6" />
+          </button>
         </div>
-      </>
+      </div>
     </Show>
   );
 };

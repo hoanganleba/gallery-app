@@ -5,15 +5,16 @@ import DirEntry from './types/DirEntry';
 import isImageExtension from '@/utils/isImageExtension';
 import isVideoExtension from '@/utils/isVideoExtension';
 import shuffleArray from '@/utils/shuffleArray';
-import ImageView from './components/ImageView';
-import VideoView from './components/VideoView';
-import isStringEmpty from './utils/isStringEmpty';
+import ImageView from '@/components/ImageView';
+import VideoView from '@/components/VideoView';
+import isStringEmpty from '@/utils/isStringEmpty';
 import { listen } from '@tauri-apps/api/event';
-import isEmptyArray from './utils/isEmptyArray';
-import useFullscreen from './hooks/useFullScreen';
+import isEmptyArray from '@/utils/isEmptyArray';
+import { useFullScreenRef } from '@/refs/useFullScreenRef';
+import WelcomeView from '@/components/WelcomeView';
 
 const App: Component = () => {
-  const [isFullscreen, enterFullscreen, exitFullscreen] = useFullscreen();
+  const { fullScreenRef, isFullScreen, toggleFullScreen } = useFullScreenRef();
   const [images, setImages] = createSignal<DirEntry[]>([]);
   const [videos, setVideos] = createSignal<DirEntry[]>([]);
   const [viewType, setViewType] = createSignal('image');
@@ -52,22 +53,20 @@ const App: Component = () => {
   );
 
   return (
-    <div id="main" class="w-screen min-h-screen h-screen bg-neutral-950 overflow-hidden">
-      <Show when={!isFullscreen()}>
+    <div ref={fullScreenRef} class="w-screen min-h-screen h-screen bg-neutral-950 overflow-hidden">
+      <Show when={!isFullScreen()}>
         <TitleBar />
       </Show>
       <Switch>
         <Match when={!isStringEmpty(directoryPath())}>
           <Switch>
             <Match when={viewType() === 'image'}>
-              <div class="flex justify-center items-center h-full w-full p-8">
-                <ImageView onVideoClicked={() => setViewType('video')} images={images()} />
-              </div>
+              <ImageView onVideoClicked={() => setViewType('video')} images={images()} />
             </Match>
             <Match when={viewType() === 'video'}>
               <VideoView
-                onFullscreenClicked={isFullscreen() ? exitFullscreen : enterFullscreen}
-                isFullscreen={isFullscreen()}
+                onFullscreenClicked={toggleFullScreen}
+                isFullscreen={isFullScreen()}
                 haveImages={!isEmptyArray(images())}
                 onFolderClicked={openDialog}
                 onImageClicked={() => setViewType('image')}
@@ -77,34 +76,7 @@ const App: Component = () => {
           </Switch>
         </Match>
         <Match when={isStringEmpty(directoryPath())}>
-          <div class="flex justify-center items-center h-full w-full p-8">
-            <div
-              onClick={openDialog}
-              class="text-white bg-neutral-800 w-[680px] h-64 flex justify-center items-center rounded-xl cursor-pointer"
-            >
-              <div>
-                <div class="flex justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-20 h-20"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-                    />
-                  </svg>
-                </div>
-                <p class="text-lg font-bold text-white text-center">
-                  Drop your folder here, or <span class="font-bold text-indigo-400">browse</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          <WelcomeView openDialog={openDialog} />
         </Match>
       </Switch>
     </div>

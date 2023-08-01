@@ -1,7 +1,7 @@
 import DirEntry from '@/types/DirEntry';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { useVideo } from '@/hooks/useVideo';
-import { useProgressBarRef } from '@/refs/progressBarRef';
+import { useProgressBarRef } from '@/refs/useProgressBarRef';
 import { Component, ComponentProps, Match, Show, Switch } from 'solid-js';
 import LoadingSpinners from './LoadingSpinners';
 import isEmptyArray from '@/utils/isEmptyArray';
@@ -20,6 +20,7 @@ import {
 } from 'solid-icons/fi';
 import useIdle from '@/hooks/useIdle';
 import { formatDuration } from '@/utils/formatDuration';
+import ProgressBar from './ProgressBar';
 
 interface VideoViewProps extends ComponentProps<any> {
   videos: DirEntry[];
@@ -66,40 +67,15 @@ const VideoView: Component<VideoViewProps> = (props: VideoViewProps) => {
         </video>
         <Show when={!idle()}>
           <div class="absolute bg-gradient-to-b from-transparent to-neutral-950/60 inset-x-0 bottom-0 z-10 px-10 pt-16 py-20">
-            <div class="flex items-center space-x-4">
-              <div class="text-center text-neutral-50 text-xs font-normal cursor-default">
-                {formatDuration(currentTime())}
-              </div>
-              <div
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                ref={progressBarRef}
-                onclick={(event) => {
-                  const progressBarRect = event.currentTarget.getBoundingClientRect();
-                  const clickOffsetX = event.clientX - progressBarRect.left;
-                  const progressBarWidth = progressBarRect.width;
-                  const newCurrentTime = (clickOffsetX / progressBarWidth) * duration();
-                  setCurrentTime(newCurrentTime);
-                  videoElement()!.currentTime = newCurrentTime;
-                }}
-                class="w-full h-1 bg-neutral-50/30 rounded-full cursor-pointer relative"
-              >
-                <div
-                  class="h-full bg-blue-600 rounded-full w-0"
-                  style={`width: ${(currentTime() / duration()) * 100}%`}
-                ></div>
-
-                <Show when={isHovered() || isDragging()}>
-                  <div
-                    class="absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-neutral-50 rounded-full"
-                    style={`left: ${(currentTime() / duration()) * 100}%`}
-                  ></div>
-                </Show>
-              </div>
-              <div class="text-center text-neutral-50 text-xs font-normal cursor-default">
-                {formatDuration(duration())}
-              </div>
-            </div>
+            <ProgressBar
+              ref={progressBarRef}
+              duration={duration()}
+              currentTime={currentTime()}
+              isDragging={isDragging()}
+              isHovered={isHovered()}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            />
             <div class="pt-11 flex items-center justify-between relative">
               <div class="flex items-center space-x-8">
                 <button onClick={props.onFolderClicked} class="text-neutral-50">
