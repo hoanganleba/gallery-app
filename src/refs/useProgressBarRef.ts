@@ -6,10 +6,9 @@ export const useProgressBarRef = (
   setCurrentTime: (value: number) => void,
   videoElement: () => HTMLVideoElement | null
 ) => {
+  const [isDragging, setIsDragging] = createSignal(false);
   const progressBarRef = (el: HTMLDivElement) => {
     if (el) {
-      const [isDragging, setIsDragging] = createSignal(false);
-
       const handleMouseDown = () => {
         setIsDragging(true);
       };
@@ -31,6 +30,7 @@ export const useProgressBarRef = (
       };
 
       const handleMouseClick = (event: MouseEvent) => {
+        event.preventDefault();
         const progressBarRect = el.getBoundingClientRect();
         const clickOffsetX = event.clientX - progressBarRect.left;
         const progressBarWidth = progressBarRect.width;
@@ -53,5 +53,5 @@ export const useProgressBarRef = (
     }
   };
 
-  return { progressBarRef };
+  return { isDragging, progressBarRef };
 };

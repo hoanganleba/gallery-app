@@ -26,7 +26,7 @@ const ProgressBar: Component<ProgressBarProps> = (props: ProgressBarProps) => {
 
         <Show when={props.isHovered || props.isDragging}>
           <div
-            class="absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-neutral-50 rounded-full"
+            class="absolute animate-scale-up-center top-0 bottom-0 my-auto -ml-1.5 w-3.5 h-3.5 bg-neutral-50 rounded-full"
             style={`left: ${(props.currentTime / props.duration) * 100}%`}
           ></div>
         </Show>

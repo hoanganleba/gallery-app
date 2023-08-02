@@ -10,7 +10,6 @@ export const useVideo = (props: { videos: DirEntry[] }) => {
   const [duration, setDuration] = createSignal(0);
   const [currentTime, setCurrentTime] = createSignal(0);
   const [isHovered, setIsHovered] = createSignal(false);
-  const [isDragging, setIsDragging] = createSignal(false);
 
   const togglePlay = () => {
     const video = videoElement();
@@ -120,8 +119,6 @@ export const useVideo = (props: { videos: DirEntry[] }) => {
     setCurrentTime,
     isHovered,
     setIsHovered,
-    isDragging,
-    setIsDragging,
     togglePlay,
     toggleMute,
     prevVideo,
