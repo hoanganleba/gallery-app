@@ -1,4 +1,4 @@
-import { Component, ComponentProps, JSXElement } from 'solid-js';
+import { Component } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 
 const Titlebar: Component = () => {
@@ -13,7 +13,7 @@ const Titlebar: Component = () => {
     await appWindow.toggleMaximize();
   };
   return (
-    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-transparent h-8"></div>
+    <div onDblClick={toggleMaximize} onMouseDown={startDragging} class="z-50 fixed inset-x-0 bg-neutral-950 h-8"></div>
   );
 };
 

@@ -3,13 +3,7 @@ import isEmptyArray from '@/utils/isEmptyArray';
 import { Component, ComponentProps, Show, createEffect, createSignal, on, onCleanup } from 'solid-js';
 import LoadingSpinners from './LoadingSpinners';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import {
-  HiSolidChevronRight,
-  HiSolidChevronLeft,
-  HiSolidMagnifyingGlassMinus,
-  HiSolidMagnifyingGlassPlus,
-} from 'solid-icons/hi';
-import { FiImage } from 'solid-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiFilm, FiRotateCcw, FiRotateCw, FiZoomIn, FiZoomOut } from 'solid-icons/fi';
 
 interface ImageViewProps extends ComponentProps<any> {
   images: DirEntry[];
@@ -19,9 +13,17 @@ interface ImageViewProps extends ComponentProps<any> {
 const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
   const [imageIndex, setImageIndex] = createSignal(0);
   const [scale, setScale] = createSignal(1);
+  const [rotate, setRotate] = createSignal(0);
 
   const upScale = () => scale() < 5 && setScale(scale() + 0.5);
   const downScale = () => scale() > 0.5 && setScale(scale() - 0.5);
+  const rotateLeft = () => setRotate(rotate() - 90);
+  const rotateRight = () => setRotate(rotate() + 90);
+
+  const reset = () => {
+    setScale(1)
+    setRotate(0)
+  }
 
   const prevImage = () => imageIndex() > 0 && setImageIndex(imageIndex() - 1);
   const nextImage = () => imageIndex() < props.images.length - 1 && setImageIndex(imageIndex() + 1);
@@ -56,16 +58,17 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
 
   return (
     <Show when={!isEmptyArray(props.images)} fallback={<LoadingSpinners />}>
-      <div class="flex justify-center items-center h-full w-full p-8">
+      <div class="flex justify-center items-center h-full w-full p-16">
         <button
           onClick={prevImage}
           disabled={imageIndex() === 0}
           class="absolute disabled:opacity-30 rounded-full p-3 bg-neutral-800/80 z-50 top-1/2 -translate-y-1/2 left-8 text-neutral-50/80"
         >
-          <HiSolidChevronLeft class="w-5 h-5" />
+          <FiChevronLeft class="w-5 h-5" />
         </button>
         <img
-          style={{ transform: `scale(${scale()})` }}
+          onDblClick={reset}
+          style={{ transform: `scale(${scale()}) rotate(${rotate()}deg)` }}
           draggable="false"
           class="h-full w-auto object-scale-down select-none transition duration-300 ease-in-out origin-center"
           src={convertFileSrc(props.images[imageIndex()].path)}
@@ -75,17 +78,23 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
           disabled={imageIndex() === props.images.length - 1}
           class="absolute disabled:opacity-30 rounded-full p-3 bg-neutral-800/80 z-50 top-1/2 -translate-y-1/2 right-8 text-neutral-50/80"
         >
-          <HiSolidChevronRight class="w-5 h-5" />
+          <FiChevronRight class="w-5 h-5" />
         </button>
-        <div class="absolute top-10 right-8 flex flex-col items-center">
+        <div class="absolute top-8 inset-x-0 flex justify-center bg-neutral-950">
           <button onClick={upScale} class="p-3 text-neutral-50/80">
-            <HiSolidMagnifyingGlassPlus class="w-5 h-5" />
+            <FiZoomIn class="w-5 h-5" />
           </button>
           <button onClick={downScale} class="p-3 text-neutral-50/80">
-            <HiSolidMagnifyingGlassMinus class="w-5 h-5" />
+            <FiZoomOut class="w-5 h-5" />
           </button>
-          <button onClick={props.onVideoClicked} class="text-neutral-50">
-            <FiImage class="h-6 w-6" />
+          <button onClick={rotateLeft} class="p-3 text-neutral-50/80">
+            <FiRotateCcw class="w-5 h-5" />
+          </button>
+          <button onClick={rotateRight} class="p-3 text-neutral-50/80">
+            <FiRotateCw class="w-5 h-5" />
+          </button>
+          <button onClick={props.onVideoClicked} class="p-3 text-neutral-50/80">
+            <FiFilm class="w-5 h-5" />
           </button>
         </div>
       </div>

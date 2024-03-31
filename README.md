@@ -1,6 +1,6 @@
 # Gallery App
 
-![Gallery App](/path/to/gallery-app.png)
+![Gallery App](app-icon.png)
 
 This repository contains the source code for the Gallery App, a cross-platform desktop application built using TauriJS. The app allows users to view their images and videos with a user-friendly interface.
 
@@ -11,9 +11,10 @@ This repository contains the source code for the Gallery App, a cross-platform d
 - Dark mode for a comfortable viewing experience
 
 ## Screenshots
-
-![Screenshot 1](/path/to/screenshot-1.png)
-![Screenshot 2](/path/to/screenshot-2.png)
+#### Image View
+![Screenshot 1](/screenshoots/image_view.png)
+#### Video View
+![Screenshot 2](/screenshoots/video_view.png)
 
 ## Installation
 
@@ -44,7 +45,7 @@ This repository contains the source code for the Gallery App, a cross-platform d
 
 ## Technologies Used
 
-- [Tauri](https://tauri.studio/): A framework for building native-like cross-platform apps using web technologies.
+- [Tauri](https://tauri.app/): A framework for building native-like cross-platform apps using web technologies.
 - [SolidJS](https://www.solidjs.com/): A JavaScript library for building user interfaces.
 - [Tailwind CSS](https://tailwindcss.com/): A utility-first CSS framework for rapid UI development.
 
@@ -58,6 +59,5 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-- [TauriJS](https://tauri.studio/) community for creating an excellent framework.
+- [TauriJS](https://tauri.app/) community for creating an excellent framework.
 - [SolidJS](https://www.solidjs.com/) and [Tailwind CSS](https://tailwindcss.com/) for their powerful tools and libraries.
-- All the contributors who have helped to improve the Gallery App.
