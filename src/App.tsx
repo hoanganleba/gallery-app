@@ -12,6 +12,7 @@ import { listen } from '@tauri-apps/api/event';
 import isEmptyArray from '@/utils/isEmptyArray';
 import { useFullScreenRef } from '@/refs/useFullScreenRef';
 import WelcomeView from '@/components/WelcomeView';
+import Alert from '@/components/Alert';
 
 const App: Component = () => {
   const { fullScreenRef, isFullScreen, toggleFullScreen } = useFullScreenRef();
@@ -19,6 +20,8 @@ const App: Component = () => {
   const [videos, setVideos] = createSignal<DirEntry[]>([]);
   const [viewType, setViewType] = createSignal('image');
   const [directoryPath, setDirectoryPath] = createSignal('');
+  const [alertMessage, setAlertMessage] = createSignal('');
+  const [isShownAlert, setIsShownAlert] = createSignal(false);
 
   const openDialog = async () => {
     const path = await dialog.open({ directory: true });
@@ -30,7 +33,8 @@ const App: Component = () => {
   listen('tauri://file-drop', (event) => {
     const path = (event.payload as any)[0];
     if (isImageExtension(path) || isVideoExtension(path)) {
-      throw new Error('Not a directory. Please drop valid directory');
+      setIsShownAlert(true);
+      setAlertMessage('Not a directory. Please drop a valid directory');
     } else {
       setDirectoryPath(path as string);
     }
@@ -42,11 +46,26 @@ const App: Component = () => {
       async () => {
         setImages([]);
         setVideos([]);
+        setIsShownAlert(false);
+        setAlertMessage('');
         setViewType('image');
-        const result = await invoke<DirEntry[]>('read_directory', { pathStr: directoryPath() });
-        setImages(shuffleArray(result.filter((item) => isImageExtension(item.path))));
-        setVideos(shuffleArray(result.filter((item) => isVideoExtension(item.path))));
-        isEmptyArray(images()) && setViewType('video');
+
+        if (directoryPath()) {
+          const result = await invoke<DirEntry[]>('read_directory', { pathStr: directoryPath() });
+          setImages(shuffleArray(result.filter((item) => isImageExtension(item.path))));
+          setVideos(shuffleArray(result.filter((item) => isVideoExtension(item.path))));
+        }
+
+        if (isEmptyArray(images()) && isEmptyArray(videos())) {
+          setIsShownAlert(true);
+          setAlertMessage('No images or videos were found. Please try again');
+          setViewType('');
+        }
+
+        if (isEmptyArray(images()) && !isEmptyArray(videos())) {
+          setViewType('video');
+        } 
+
       },
       { defer: true }
     )
@@ -54,6 +73,15 @@ const App: Component = () => {
 
   return (
     <div ref={fullScreenRef} class="w-screen min-h-screen h-screen bg-neutral-950 overflow-hidden">
+      <Show when={isShownAlert()}>
+        <div class="fixed z-50 top-12 inset-x-0">
+          <div class="flex justify-center">
+            <div class="min-w-[680px]">
+              <Alert message={alertMessage()} onAlertClicked={() => setIsShownAlert(false)} />
+            </div>
+          </div>
+        </div>
+      </Show>
       <Show when={!isFullScreen()}>
         <TitleBar />
       </Show>

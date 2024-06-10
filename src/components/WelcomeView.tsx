@@ -9,7 +9,7 @@ const WelcomeView: Component<WelcomeViewProps> = (props: WelcomeViewProps) => {
     <div class="flex items-center justify-center w-full h-full p-8">
       <div
         onclick={props.openDialog}
-        class="text-white bg-neutral-800 w-[680px] h-64 flex justify-center items-center rounded-xl cursor-pointer"
+        class="text-white bg-gray-800 w-[680px] h-64 flex justify-center items-center rounded-xl cursor-pointer"
       >
         <div>
           <div class="flex justify-center">

@@ -6,9 +6,9 @@ const LoadingSpinners: Component = () => {
       <div
         aria-label="Loading..."
         role="status"
-        class="flex items-center space-x-2 bg-neutral-800 py-4 px-6 rounded-lg"
+        class="flex items-center space-x-2 bg-gray-800 py-4 px-6 rounded-lg"
       >
-        <svg class="h-5 w-5 animate-spin stroke-neutral-50/80" viewBox="0 0 256 256">
+        <svg class="h-5 w-5 animate-spin stroke-gray-50/80" viewBox="0 0 256 256">
           <line
             x1="128"
             y1="32"
@@ -82,7 +82,7 @@ const LoadingSpinners: Component = () => {
             stroke-width="24"
           ></line>
         </svg>
-        <span class="text-neutral-50/80 text-sm">Loading...</span>
+        <span class="text-gray-50/80 text-sm">Loading...</span>
       </div>
     </div>
   );
