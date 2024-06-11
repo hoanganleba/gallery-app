@@ -1,4 +1,4 @@
 export default interface DirEntry {
-  path: string;
-  is_file: boolean;
+    path: string
+    is_file: boolean
 }

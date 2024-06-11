@@ -1,3 +1,3 @@
 export default (str: string): boolean => {
-  return str.trim() === '';
-};
+    return str.trim() === ""
+}
