@@ -93,7 +93,7 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
                 >
                     <FiChevronRight class="w-6 h-6" />
                 </button>
-                <div class="absolute bottom-[12%] bg-gray-800/80 space-x-3.5 rounded-xl px-3.5 py-2">
+                <div class="absolute bottom-[12%] bg-gray-800/80 space-x-3.5 rounded-xl px-3.5 py-2 hover:opacity-100 opacity-0 transition-opacity duration-300">
                     <button onClick={props.onFolderClicked} class="p-3.5 text-gray-50/80">
                         <FiFolder class="w-6 h-6" />
                     </button>
