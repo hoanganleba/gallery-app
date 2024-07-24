@@ -4,7 +4,6 @@ import { dialog, invoke } from "@tauri-apps/api"
 import DirEntry from "./types/DirEntry"
 import isImageExtension from "@/utils/isImageExtension"
 import isVideoExtension from "@/utils/isVideoExtension"
-import shuffleArray from "@/utils/shuffleArray"
 import ImageView from "@/components/ImageView"
 import VideoView from "@/components/VideoView"
 import isStringEmpty from "@/utils/isStringEmpty"
@@ -54,8 +53,8 @@ const App: Component = () => {
                     const result = await invoke<DirEntry[]>("read_directory", {
                         pathStr: directoryPath(),
                     })
-                    setImages(shuffleArray(result.filter((item) => isImageExtension(item.path))))
-                    setVideos(shuffleArray(result.filter((item) => isVideoExtension(item.path))))
+                    setImages(result.filter((item) => isImageExtension(item.path)))
+                    setVideos(result.filter((item) => isVideoExtension(item.path)))
                 }
 
                 if (isEmptyArray(images()) && isEmptyArray(videos())) {
