@@ -1,6 +1,6 @@
 # Gallery App
 
-![Gallery App](app-icon.png)
+![Gallery App](src-tauri/icons/Square310x310Logo.png)
 
 This repository contains the source code for the Gallery App, a cross-platform desktop application built using TauriJS. The app allows users to view their images and videos with a user-friendly interface.
 
@@ -11,9 +11,13 @@ This repository contains the source code for the Gallery App, a cross-platform d
 - Dark mode for a comfortable viewing experience
 
 ## Screenshots
-#### Image View
+
+### Image View
+
 ![Screenshot 1](/screenshoots/image_view.png)
-#### Video View
+
+### Video View
+
 ![Screenshot 2](/screenshoots/video_view.png)
 
 ## Installation

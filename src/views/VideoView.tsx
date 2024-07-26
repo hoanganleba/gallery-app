@@ -3,7 +3,7 @@ import { convertFileSrc } from "@tauri-apps/api/tauri"
 import { useVideo } from "@/hooks/useVideo"
 import { useProgressBarRef } from "@/refs/useProgressBarRef"
 import { Component, ComponentProps, Match, Show, Switch } from "solid-js"
-import LoadingSpinners from "./LoadingSpinners"
+import LoadingSpinners from "@/components/LoadingSpinners"
 import isEmptyArray from "@/utils/isEmptyArray"
 import {
     FiFolder,
@@ -19,7 +19,7 @@ import {
     FiVolumeX,
 } from "solid-icons/fi"
 import useIdle from "@/hooks/useIdle"
-import ProgressBar from "./ProgressBar"
+import ProgressBar from "@/components/ProgressBar"
 
 interface VideoViewProps extends ComponentProps<any> {
     videos: DirEntry[]

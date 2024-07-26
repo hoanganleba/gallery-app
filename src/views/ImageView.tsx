@@ -1,7 +1,7 @@
 import DirEntry from "@/types/DirEntry"
 import isEmptyArray from "@/utils/isEmptyArray"
 import { Component, ComponentProps, Show, createEffect, createSignal, on, onCleanup } from "solid-js"
-import LoadingSpinners from "./LoadingSpinners"
+import LoadingSpinners from "@/components/LoadingSpinners"
 import { convertFileSrc } from "@tauri-apps/api/tauri"
 import {
     FiChevronLeft,

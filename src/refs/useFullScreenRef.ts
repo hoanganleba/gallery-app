@@ -1,4 +1,3 @@
-import { appWindow } from "@tauri-apps/api/window"
 import { createEffect, createSignal } from "solid-js"
 
 export const useFullScreenRef = () => {
@@ -7,36 +6,17 @@ export const useFullScreenRef = () => {
     const fullScreenRef = (element: any) => {
         if (element) {
             elementRef = element
-            element.addEventListener("fullscreenchange", () => setIsFullScreen(!!document.fullscreenElement))
-            element.addEventListener("webkitfullscreenchange", () =>
-                setIsFullScreen(!!document.webkitFullscreenElement)
-            )
-            element.addEventListener("mozfullscreenchange", () => setIsFullScreen(!!document.mozFullScreenElement))
-            element.addEventListener("msfullscreenchange", () => setIsFullScreen(!!document.msFullscreenElement))
+            element.addEventListener("fullscreenchange", () => {
+                setIsFullScreen(!!document.fullscreenElement)
+            })
         }
     }
 
     const toggleFullScreen = () => {
         if (!isFullScreen()) {
-            if (elementRef.requestFullscreen) {
-                elementRef.requestFullscreen()
-            } else if (elementRef.webkitRequestFullscreen) {
-                elementRef.webkitRequestFullscreen()
-            } else if (elementRef.mozRequestFullScreen) {
-                elementRef.mozRequestFullScreen()
-            } else if (elementRef.msRequestFullscreen) {
-                elementRef.msRequestFullscreen()
-            }
+            elementRef.requestFullscreen()
         } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen()
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen()
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen()
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen()
-            }
+            document.exitFullscreen()
         }
     }
 
@@ -56,15 +36,7 @@ export const useFullScreenRef = () => {
     createEffect(() => {
         return () => {
             if (isFullScreen()) {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen()
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen()
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen()
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen()
-                }
+                document.exitFullscreen()
             }
         }
     })
