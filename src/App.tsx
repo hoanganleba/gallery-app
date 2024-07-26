@@ -58,20 +58,22 @@ const App: Component = () => {
         on(
             directoryPath,
             async () => {
+                setImages([])
+                setVideos([])
+                setAlertMessage("")
+                setIsShownAlert(false)
+
                 if (directoryPath()) {
                     const result = await invoke<DirEntry[]>("read_directory", {
                         pathStr: directoryPath(),
                     })
-                    const imagesResult = result.filter((item) => isImageExtension(item.path))
-                    const videosResult = result.filter((item) => isVideoExtension(item.path))
+                    setImages(result.filter((item) => isImageExtension(item.path)))
+                    setVideos(result.filter((item) => isVideoExtension(item.path)))
 
-                    if (isEmptyArray(imagesResult) && isEmptyArray(videosResult)) {
+                    if (isEmptyArray(images()) && isEmptyArray(videos())) {
                         setIsShownAlert(true)
                         setAlertMessage("No images or videos were found. Please try again")
                     } else {
-                        setImages(imagesResult)
-                        setVideos(videosResult)
-
                         if (isEmptyArray(images()) && !isEmptyArray(videos())) {
                             setViewType("video")
                         } else {
