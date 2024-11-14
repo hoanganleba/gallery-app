@@ -9,7 +9,7 @@ const WelcomeView: Component<WelcomeViewProps> = (props: WelcomeViewProps) => {
         <div class="flex items-center justify-center w-full h-full p-8">
             <div
                 onclick={props.openDialog}
-                class="text-white bg-gray-800 w-[680px] h-64 flex justify-center items-center rounded-xl cursor-pointer"
+                class="bg-base-200 w-[680px] h-64 flex justify-center items-center rounded-xl cursor-pointer"
             >
                 <div>
                     <div class="flex justify-center">
@@ -28,8 +28,8 @@ const WelcomeView: Component<WelcomeViewProps> = (props: WelcomeViewProps) => {
                             />
                         </svg>
                     </div>
-                    <p class="text-lg font-bold text-center text-white">
-                        Drop your folder here, or <span class="font-bold text-blue-400">browse</span>
+                    <p class="text-lg font-bold text-center">
+                        Drop your folder here, or <span class="text-blue-400">browse</span>
                     </p>
                 </div>
             </div>

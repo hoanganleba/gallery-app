@@ -70,13 +70,15 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
     return (
         <Show when={!isEmptyArray(props.images)} fallback={<LoadingSpinners />}>
             <div class="flex justify-center items-center h-full w-full p-16">
+                <div class="absolute z-50 top-1/2 -translate-y-1/2 left-8">
                 <button
                     onClick={prevImage}
                     disabled={imageIndex() === 0}
-                    class="absolute disabled:opacity-30 rounded-full p-3.5 bg-gray-800/80 z-50 top-1/2 -translate-y-1/2 left-8 text-gray-50/80"
+                    class="btn btn-lg btn-circle"
                 >
                     <FiChevronLeft class="w-6 h-6" />
                 </button>
+                </div>
                 <img
                     onDblClick={reset}
                     style={{
@@ -86,13 +88,15 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
                     class="h-full w-auto object-scale-down select-none transition duration-300 ease-in-out origin-center"
                     src={convertFileSrc(props.images[imageIndex()].path)}
                 />
+                <div class="absolute z-50 top-1/2 -translate-y-1/2 right-8">
                 <button
                     onClick={nextImage}
                     disabled={imageIndex() === props.images.length - 1}
-                    class="absolute disabled:opacity-30 rounded-full p-3.5 bg-gray-800/80 z-50 top-1/2 -translate-y-1/2 right-8 text-gray-50/80"
+                    class="btn btn-lg btn-circle"
                 >
                     <FiChevronRight class="w-6 h-6" />
                 </button>
+                </div>
                 <div class="absolute bottom-[12%] bg-gray-800/80 space-x-3.5 rounded-xl px-3.5 py-2 hover:opacity-100 opacity-0 transition-opacity duration-300">
                     <button onClick={props.onFolderClicked} class="p-3.5 text-gray-50/80">
                         <FiFolder class="w-6 h-6" />

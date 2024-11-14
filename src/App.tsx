@@ -1,4 +1,4 @@
-import { Component, Match, Show, Switch, createEffect, createSignal, on, lazy, onCleanup } from "solid-js"
+import { Component, Match, Show, Switch, createSignal, lazy, onCleanup } from "solid-js"
 import TitleBar from "@/components/TitleBar"
 import { dialog, invoke } from "@tauri-apps/api"
 import DirEntry from "@/types/DirEntry"
@@ -15,19 +15,42 @@ const ImageView = lazy(() => import("@/views/ImageView"))
 const VideoView = lazy(() => import("@/views/VideoView"))
 
 const App: Component = () => {
+    const DATA_THEME = "black"
     const { fullScreenRef, isFullScreen, toggleFullScreen } = useFullScreenRef()
     const [images, setImages] = createSignal<DirEntry[]>([])
     const [videos, setVideos] = createSignal<DirEntry[]>([])
     const [viewType, setViewType] = createSignal("welcome")
-    const [directoryPath, setDirectoryPath] = createSignal("")
     const [alertMessage, setAlertMessage] = createSignal("")
     const [isShownAlert, setIsShownAlert] = createSignal(false)
 
+    const loadMediaFiles = async (path: any) => {
+        try {
+            const result = await invoke<DirEntry[]>("read_directory", { pathStr: path });
+            
+            const _images = result.filter((item) => isImageExtension(item.path));
+            const _videos = result.filter((item) => isVideoExtension(item.path));
+    
+            if (isEmptyArray(_images) && isEmptyArray(_videos)) {
+                setIsShownAlert(true);
+                setAlertMessage("No images or videos were found. Please try again");
+            } else {
+                setImages(_images);
+                setVideos(_videos);
+    
+                if (isEmptyArray(images()) && !isEmptyArray(videos())) {
+                    setViewType("video");
+                } else {
+                    setViewType("image");
+                }
+            }
+        } catch (error) {
+            console.error("Error loading media files:", error);
+        }
+    }    
+
     const openDialog = async () => {
         const path = await dialog.open({ directory: true })
-        if (path) {
-            setDirectoryPath(path as string)
-        }
+        return path && loadMediaFiles(path)
     }
 
     const handleCommandO = (event: any) => {
@@ -43,51 +66,13 @@ const App: Component = () => {
         document.removeEventListener("keydown", handleCommandO)
     })
 
-    listen("tauri://file-drop", (event) => {
+    listen("tauri://file-drop", async (event) => {
         const path = (event.payload as any)[0]
-
-        if (isFolder(path)) {
-            setDirectoryPath(path as string)
-        } else {
-            setIsShownAlert(true)
-            setAlertMessage("Not a directory. Please drop a valid directory")
-        }
+        return path && loadMediaFiles(path)
     })
 
-    createEffect(
-        on(
-            directoryPath,
-            async () => {
-                setImages([])
-                setVideos([])
-                setAlertMessage("")
-                setIsShownAlert(false)
-
-                if (directoryPath()) {
-                    const result = await invoke<DirEntry[]>("read_directory", {
-                        pathStr: directoryPath(),
-                    })
-                    setImages(result.filter((item) => isImageExtension(item.path)))
-                    setVideos(result.filter((item) => isVideoExtension(item.path)))
-
-                    if (isEmptyArray(images()) && isEmptyArray(videos())) {
-                        setIsShownAlert(true)
-                        setAlertMessage("No images or videos were found. Please try again")
-                    } else {
-                        if (isEmptyArray(images()) && !isEmptyArray(videos())) {
-                            setViewType("video")
-                        } else {
-                            setViewType("image")
-                        }
-                    }
-                }
-            },
-            { defer: true }
-        )
-    )
-
     return (
-        <div ref={fullScreenRef} class="w-screen min-h-screen h-screen bg-neutral-950 overflow-hidden">
+        <div data-theme={DATA_THEME} ref={fullScreenRef} class="w-screen min-h-screen h-screen overflow-hidden">
             <Show when={isShownAlert()}>
                 <div class="fixed z-50 top-12 inset-x-0">
                     <div class="flex justify-center">
@@ -98,7 +83,7 @@ const App: Component = () => {
                 </div>
             </Show>
             <Show when={!isFullScreen()}>
-                <TitleBar />
+                <TitleBar dataTheme={DATA_THEME} />
             </Show>
             <Switch>
                 <Match when={viewType() === "welcome"}>

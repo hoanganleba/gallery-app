@@ -1,7 +1,11 @@
-import { Component } from "solid-js"
+import { Component, ComponentProps } from "solid-js"
 import { appWindow } from "@tauri-apps/api/window"
 
-const Titlebar: Component = () => {
+interface TitlebarProps extends ComponentProps<any> {
+    dataTheme: string;
+}
+
+const Titlebar: Component<TitlebarProps> = (props : TitlebarProps) => {
     const startDragging = async (event: Event) => {
         event.stopPropagation()
         event.preventDefault()
@@ -14,9 +18,10 @@ const Titlebar: Component = () => {
     }
     return (
         <div
+            data-theme={props.dataTheme}
             onDblClick={toggleMaximize}
             onMouseDown={startDragging}
-            class="z-50 fixed inset-x-0 bg-neutral-950 h-8"
+            class="z-50 fixed inset-x-0 h-8"
         ></div>
     )
 }

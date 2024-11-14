@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    daisyui: {
+        themes: ["black"],
+    },
     content: ["./src/**/*.{js,jsx,ts,tsx}"],
     theme: {
         extend: {
@@ -14,5 +17,5 @@ module.exports = {
             },
         },
     },
-    plugins: [require("tailwind-scrollbar")({ nocompatible: true })],
+    plugins: [require("tailwind-scrollbar")({ nocompatible: true }), require("daisyui")],
 }
