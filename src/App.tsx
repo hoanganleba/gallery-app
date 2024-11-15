@@ -1,4 +1,4 @@
-import { Component, Match, Show, Switch, createSignal, lazy, onCleanup } from "solid-js"
+import { Component, Show, createMemo, createSignal, lazy, onCleanup } from "solid-js"
 import TitleBar from "@/components/TitleBar"
 import { dialog, invoke } from "@tauri-apps/api"
 import DirEntry from "@/types/DirEntry"
@@ -7,46 +7,55 @@ import isVideoExtension from "@/utils/isVideoExtension"
 import { listen } from "@tauri-apps/api/event"
 import isEmptyArray from "@/utils/isEmptyArray"
 import { useFullScreenRef } from "@/refs/useFullScreenRef"
-import WelcomeView from "@/views/WelcomeView"
 import isFolder from "@/utils/isFolder"
+import { Dynamic } from "solid-js/web"
 
 const Alert = lazy(() => import("@/components/Alert"))
+const WelcomeView = lazy(() => import("@/views/WelcomeView"))
 const ImageView = lazy(() => import("@/views/ImageView"))
 const VideoView = lazy(() => import("@/views/VideoView"))
 
+type ViewType = "welcome" | "image" | "video"
+
+const DATA_THEME = "black"
+
 const App: Component = () => {
-    const DATA_THEME = "black"
     const { fullScreenRef, isFullScreen, toggleFullScreen } = useFullScreenRef()
     const [images, setImages] = createSignal<DirEntry[]>([])
     const [videos, setVideos] = createSignal<DirEntry[]>([])
-    const [viewType, setViewType] = createSignal("welcome")
+    const [viewType, setViewType] = createSignal<ViewType>("welcome")
     const [alertMessage, setAlertMessage] = createSignal("")
     const [isShownAlert, setIsShownAlert] = createSignal(false)
 
     const loadMediaFiles = async (path: any) => {
         try {
-            const result = await invoke<DirEntry[]>("read_directory", { pathStr: path });
-            
-            const _images = result.filter((item) => isImageExtension(item.path));
-            const _videos = result.filter((item) => isVideoExtension(item.path));
-    
+            const result = await invoke<DirEntry[]>("read_directory", { pathStr: path })
+
+            const _images = result.filter((item) => isImageExtension(item.path))
+            const _videos = result.filter((item) => isVideoExtension(item.path))
+
             if (isEmptyArray(_images) && isEmptyArray(_videos)) {
-                setIsShownAlert(true);
-                setAlertMessage("No images or videos were found. Please try again");
+                setIsShownAlert(true)
+                setAlertMessage(
+                    "The selected folder doesn't contain any images or videos. Please choose a different folder and try again"
+                )
             } else {
-                setImages(_images);
-                setVideos(_videos);
-    
+                setIsShownAlert(false)
+                setAlertMessage("")
+                setImages(_images)
+                setVideos(_videos)
+
                 if (isEmptyArray(images()) && !isEmptyArray(videos())) {
-                    setViewType("video");
+                    setViewType("video")
                 } else {
-                    setViewType("image");
+                    setViewType("image")
                 }
             }
         } catch (error) {
-            console.error("Error loading media files:", error);
+            setIsShownAlert(true)
+            setAlertMessage(`Error loading media files: ${error}`)
         }
-    }    
+    }
 
     const openDialog = async () => {
         const path = await dialog.open({ directory: true })
@@ -68,8 +77,37 @@ const App: Component = () => {
 
     listen("tauri://file-drop", async (event) => {
         const path = (event.payload as any)[0]
-        return path && loadMediaFiles(path)
+        if (isFolder(path)) {
+            loadMediaFiles(path)
+        } else {
+            setIsShownAlert(true)
+            setAlertMessage("Only folders are supported. Please drag and drop a valid folder and try again")
+        }
     })
+
+    const componentsMap = {
+        welcome: WelcomeView,
+        image: ImageView,
+        video: VideoView,
+    }
+
+    const propsMap = createMemo(() => ({
+        welcome: { openDialog },
+        image: {
+            haveVideos: !isEmptyArray(videos()),
+            onFolderClicked: openDialog,
+            onVideoClicked: () => setViewType("video"),
+            images: images(),
+        },
+        video: {
+            isFullscreen: isFullScreen(),
+            onFullscreenClicked: toggleFullScreen,
+            haveImages: !isEmptyArray(images()),
+            onFolderClicked: openDialog,
+            onImageClicked: () => setViewType("image"),
+            videos: videos(),
+        },
+    }))
 
     return (
         <div data-theme={DATA_THEME} ref={fullScreenRef} class="w-screen min-h-screen h-screen overflow-hidden">
@@ -83,31 +121,9 @@ const App: Component = () => {
                 </div>
             </Show>
             <Show when={!isFullScreen()}>
-                <TitleBar dataTheme={DATA_THEME} />
+                <TitleBar />
             </Show>
-            <Switch>
-                <Match when={viewType() === "welcome"}>
-                    <WelcomeView openDialog={openDialog} />
-                </Match>
-                <Match when={viewType() === "image"}>
-                    <ImageView
-                        haveVideos={!isEmptyArray(videos())}
-                        onFolderClicked={openDialog}
-                        onVideoClicked={() => setViewType("video")}
-                        images={images()}
-                    />
-                </Match>
-                <Match when={viewType() === "video"}>
-                    <VideoView
-                        onFullscreenClicked={toggleFullScreen}
-                        isFullscreen={isFullScreen()}
-                        haveImages={!isEmptyArray(images())}
-                        onFolderClicked={openDialog}
-                        onImageClicked={() => setViewType("image")}
-                        videos={videos()}
-                    />
-                </Match>
-            </Switch>
+            <Dynamic component={componentsMap[viewType()]} {...propsMap()[viewType()]} />
         </div>
     )
 }

@@ -13,6 +13,7 @@ import {
     FiZoomOut,
     FiFolder,
 } from "solid-icons/fi"
+import useIdle from "@/hooks/useIdle"
 
 interface ImageViewProps extends ComponentProps<any> {
     images: DirEntry[]
@@ -22,6 +23,7 @@ interface ImageViewProps extends ComponentProps<any> {
 }
 
 const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
+    const { idle } = useIdle(1000)
     const [imageIndex, setImageIndex] = createSignal(0)
     const [scale, setScale] = createSignal(1)
     const [rotate, setRotate] = createSignal(0)
@@ -70,14 +72,12 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
     return (
         <Show when={!isEmptyArray(props.images)} fallback={<LoadingSpinners />}>
             <div class="flex justify-center items-center h-full w-full p-16">
-                <div class="absolute z-50 top-1/2 -translate-y-1/2 left-8">
-                <button
-                    onClick={prevImage}
-                    disabled={imageIndex() === 0}
-                    class="btn btn-lg btn-circle"
+                <div
+                    class={`${idle() ? "opacity-0" : "opacity-100"} transition duration-300 absolute z-50 top-1/2 -translate-y-1/2 left-8 bg-base-100/80 rounded-full`}
                 >
-                    <FiChevronLeft class="w-6 h-6" />
-                </button>
+                    <button onClick={prevImage} disabled={imageIndex() === 0} class="btn btn-lg btn-circle">
+                        <FiChevronLeft class="w-6 h-6" />
+                    </button>
                 </div>
                 <img
                     onDblClick={reset}
@@ -88,34 +88,38 @@ const ImageView: Component<ImageViewProps> = (props: ImageViewProps) => {
                     class="h-full w-auto object-scale-down select-none transition duration-300 ease-in-out origin-center"
                     src={convertFileSrc(props.images[imageIndex()].path)}
                 />
-                <div class="absolute z-50 top-1/2 -translate-y-1/2 right-8">
-                <button
-                    onClick={nextImage}
-                    disabled={imageIndex() === props.images.length - 1}
-                    class="btn btn-lg btn-circle"
+                <div
+                    class={`${idle() ? "opacity-0" : "opacity-100"} transition duration-300 absolute z-50 top-1/2 -translate-y-1/2 right-8 bg-base-100/80 rounded-full`}
                 >
-                    <FiChevronRight class="w-6 h-6" />
-                </button>
+                    <button
+                        onClick={nextImage}
+                        disabled={imageIndex() === props.images.length - 1}
+                        class="btn btn-lg btn-circle"
+                    >
+                        <FiChevronRight class="w-6 h-6" />
+                    </button>
                 </div>
-                <div class="absolute bottom-[12%] bg-gray-800/80 space-x-3.5 rounded-xl px-3.5 py-2 hover:opacity-100 opacity-0 transition-opacity duration-300">
-                    <button onClick={props.onFolderClicked} class="p-3.5 text-gray-50/80">
+                <div
+                    class={`${idle() ? "opacity-0" : "opacity-100"} transition duration-300 absolute bottom-12 z-50 join rounded-lg bg-base-100/80`}
+                >
+                    <button onClick={props.onFolderClicked} class="btn join-item btn-lg">
                         <FiFolder class="w-6 h-6" />
                     </button>
                     <Show when={props.haveVideos}>
-                        <button onClick={props.onVideoClicked} class="p-3.5 text-gray-50/80">
+                        <button onClick={props.onVideoClicked} class="btn join-item btn-lg">
                             <FiFilm class="w-6 h-6" />
                         </button>
                     </Show>
-                    <button onClick={upScale} class="p-3.5 text-gray-50/80">
+                    <button onClick={upScale} class="btn join-item btn-lg">
                         <FiZoomIn class="w-6 h-6" />
                     </button>
-                    <button onClick={downScale} class="p-3.5 text-gray-50/80">
+                    <button onClick={downScale} class="btn join-item btn-lg">
                         <FiZoomOut class="w-6 h-6" />
                     </button>
-                    <button onClick={rotateLeft} class="p-3.5 text-gray-50/80">
+                    <button onClick={rotateLeft} class="btn join-item btn-lg">
                         <FiRotateCcw class="w-6 h-6" />
                     </button>
-                    <button onClick={rotateRight} class="p-3.5 text-gray-50/80">
+                    <button onClick={rotateRight} class="btn join-item btn-lg">
                         <FiRotateCw class="w-6 h-6" />
                     </button>
                 </div>

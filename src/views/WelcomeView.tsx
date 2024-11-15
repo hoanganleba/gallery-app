@@ -29,7 +29,7 @@ const WelcomeView: Component<WelcomeViewProps> = (props: WelcomeViewProps) => {
                         </svg>
                     </div>
                     <p class="text-lg font-bold text-center">
-                        Drop your folder here, or <span class="text-blue-400">browse</span>
+                        Drag and drop a folder here, or <span class="text-blue-400">click to browse</span>
                     </p>
                 </div>
             </div>
