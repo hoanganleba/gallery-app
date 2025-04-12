@@ -1,11 +1,36 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
-const images = ['https://picsum.photos/200/300', 'https://picsum.photos/200/300', 'https://picsum.photos/200/300', 'https://picsum.photos/200/300'];
+const props = defineProps({
+    images: {
+        type: Array,
+        required: true
+    }
+});
+
 const currentIndex = ref(0);
-const currentImage = computed(() => images[currentIndex.value]);
+const images = ref(props.images);
+const imageClassStyleWidthHeight = ref('w-auto h-full');
+
+watch(() => props.images, (newImages) => {
+    images.value = newImages;
+    currentIndex.value = 0; // Reset index when new images are passed
+});
+
+const updateImageDimensions = (event) => {
+    const img = event.target;
+
+    if (img.naturalWidth > img.naturalHeight) {
+        imageClassStyleWidthHeight.value = 'w-full h-auto';
+    } else {
+        imageClassStyleWidthHeight.value = 'w-auto h-full';
+    }
+};
+
+const currentImage = computed(() => convertFileSrc(images.value[currentIndex.value]?.path || ''));
 const nextImage = () => {
-    if (currentIndex.value < images.length - 1) {
+    if (currentIndex.value < images.value.length - 1) {
         currentIndex.value++;
     }
 };
@@ -15,7 +40,7 @@ const prevImage = () => {
     }
 };
 const isFirstImage = computed(() => currentIndex.value === 0);
-const isLastImage = computed(() => currentIndex.value === images.length - 1);
+const isLastImage = computed(() => currentIndex.value === images.value.length - 1);
 const handleKeydown = (event) => {
     if (event.key === 'ArrowLeft') {
         prevImage();
@@ -33,7 +58,7 @@ onBeforeUnmount(() => {
 
 <template>
     <button
-        class="absolute top-1/2 left-2 -translate-y-1/2 border-none rounded-full cursor-pointer text-gray-100 bg-gray-900 flex justify-center items-center p-4 z-[369] disabled:opacity-50 disabled:cursor-not-allowed"
+        class="absolute top-1/2 left-2 -translate-y-1/2 border-none rounded-full cursor-pointer text-gray-100 bg-gray-900/50 flex justify-center items-center p-4 z-[369] disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isFirstImage" @click="prevImage">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4.5 h-4.5">
             <path fill-rule="evenodd"
@@ -41,11 +66,20 @@ onBeforeUnmount(() => {
                 clip-rule="evenodd" />
         </svg>
     </button>
-    <div class="flex justify-center items-center w-screen h-screen overflow-hidden p-2">
-        <img draggable="false" :src="currentImage" alt="Image" class="h-full object-contain rounded-lg shadow-md" />
+    <div class="flex justify-center items-center w-screen h-screen overflow-hidden py-8 px-2">
+        <img 
+            draggable="false" 
+            :src="currentImage" 
+            alt="Image" 
+            :class="imageClassStyleWidthHeight"
+            class="object-contain rounded-lg"
+            @load="updateImageDimensions"
+            @error="imageClassStyleWidthHeight = 'w-auto h-full'"
+            
+    />
     </div>
     <button
-        class="absolute top-1/2 right-2 -translate-y-1/2 border-none rounded-full cursor-pointer text-gray-100 bg-gray-900 flex justify-center items-center p-4 z-[369] disabled:opacity-50 disabled:cursor-not-allowed"
+        class="absolute top-1/2 right-2 -translate-y-1/2 border-none rounded-full cursor-pointer text-gray-100 bg-gray-900/50 flex justify-center items-center p-4 z-[369] disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isLastImage" @click="nextImage">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4.5 h-4.5">
             <path fill-rule="evenodd"
