@@ -11,24 +11,13 @@ const props = defineProps({
 
 const currentIndex = ref(0);
 const images = ref(props.images);
-const imageClassStyleWidthHeight = ref('w-auto h-full');
 
 watch(() => props.images, (newImages) => {
     images.value = newImages;
     currentIndex.value = 0; // Reset index when new images are passed
 });
 
-const updateImageDimensions = (event) => {
-    const img = event.target;
-
-    if (img.naturalWidth > img.naturalHeight) {
-        imageClassStyleWidthHeight.value = 'w-full h-auto';
-    } else {
-        imageClassStyleWidthHeight.value = 'w-auto h-full';
-    }
-};
-
-const currentImage = computed(() => convertFileSrc(images.value[currentIndex.value]?.path || ''));
+const currentImage = computed(() => images.value[currentIndex.value]);
 const nextImage = () => {
     if (currentIndex.value < images.value.length - 1) {
         currentIndex.value++;
@@ -69,13 +58,9 @@ onBeforeUnmount(() => {
     <div class="flex justify-center items-center w-screen h-screen overflow-hidden py-8 px-2">
         <img 
             draggable="false" 
-            :src="currentImage" 
-            alt="Image" 
-            :class="imageClassStyleWidthHeight"
-            class="object-contain rounded-lg"
-            @load="updateImageDimensions"
-            @error="imageClassStyleWidthHeight = 'w-auto h-full'"
-            
+            :src="convertFileSrc(currentImage.path)" 
+            :alt="currentImage.name" 
+            class="object-contain h-full w-auto max-h-full"
     />
     </div>
     <button

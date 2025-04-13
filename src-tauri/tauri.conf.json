@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "gallery-app",
+  "productName": "Gallery App",
   "version": "0.1.0",
-  "identifier": "com.gallery-app.app",
+  "identifier": "com.galleryapp.app",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:1420",
