@@ -61,7 +61,7 @@ onMounted(() => {
   <div class="w-screen h-screen min-h-screen bg-black flex items-center justify-center relative overflow-hidden px-2 py-8">
     <TitleBar />
     <Overlay :isOvering="isOvering" />
-    <DropFolderViewer v-if="!loadSuccess" />
     <ImageViewer :images=images v-if="loadSuccess" />
+    <DropFolderViewer v-else />
   </div>
 </template>

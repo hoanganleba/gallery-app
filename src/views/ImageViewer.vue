@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed } from 'vue';
 import { convertFileSrc } from '@tauri-apps/api/core';
+import { useEventListener, whenever } from '@vueuse/core';
 
 const props = defineProps({
     images: {
@@ -36,8 +37,8 @@ const toggleSlideshow = () => {
 const currentIndex = ref(0);
 const images = ref(props.images);
 
-watch(() => props.images, (newImages) => {
-    images.value = newImages;
+whenever(() => props.images, () => {
+    images.value = props.images;
     currentIndex.value = 0; // Reset index when new images are passed
 });
 
@@ -63,12 +64,8 @@ const handleKeydown = (event) => {
         toggleSlideshow();
     }
 };
-onMounted(() => {
-    window.addEventListener('keydown', handleKeydown);
-});
-onBeforeUnmount(() => {
-    window.removeEventListener('keydown', handleKeydown);
-});
+
+useEventListener(window, 'keydown', handleKeydown)
 </script>
 
 <template>
