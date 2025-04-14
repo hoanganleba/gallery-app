@@ -5,6 +5,8 @@ import TitleBar from './components/TitleBar.vue';
 import { invoke } from '@tauri-apps/api/core';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import Overlay from './components/Overlay.vue';
+import DropFolderViewer from './views/DropFolderViewer.vue';
 
 const images = ref([]);
 const loadSuccess = ref(false);
@@ -56,15 +58,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <TitleBar />
-  <div 
-    class="bg-white/10 z-[369] backdrop-blur-md absolute inset-0 transform transition-opacity duration-300 ease-in-out" 
-    :class="{ 'opacity-0': !isOvering, 'opacity-100': isOvering }">
+  <div class="w-screen h-screen min-h-screen bg-black flex items-center justify-center relative overflow-hidden px-2 py-8">
+    <TitleBar />
+    <Overlay :isOvering="isOvering" />
+    <DropFolderViewer v-if="!loadSuccess" />
+    <ImageViewer :images=images v-if="loadSuccess" />
   </div>
-  <div class="absolute inset-0 flex items-center justify-center">
-    <div class="text-white text-lg font-semibold" v-if="!loadSuccess">
-      Drag and drop a folder to view images
-    </div>
-  </div>
-  <ImageViewer :images=images v-if="loadSuccess" />
 </template>

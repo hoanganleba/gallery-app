@@ -15,5 +15,5 @@ const toggleMaximize = async () => {
 </script>
 
 <template>
-    <div class="h-8 bg-transparent w-full absolute z-[963]" data-tauri-drag-region @dblclick="toggleMaximize"></div>
+    <div class="h-8 bg-transparent w-full absolute top-0 z-[963] text-center" data-tauri-drag-region @dblclick="toggleMaximize"></div>
 </template>
