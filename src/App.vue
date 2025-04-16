@@ -1,12 +1,13 @@
 <script setup>
-import ImageViewer from './views/ImageViewer.vue';
 import TitleBar from './components/TitleBar.vue';
 
 import { invoke } from '@tauri-apps/api/core';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import Overlay from './components/Overlay.vue';
 import DropFolderViewer from './views/DropFolderViewer.vue';
+
+const ImageViewer = defineAsyncComponent(() => import('./views/ImageViewer.vue'));
 
 const images = ref([]);
 const loadSuccess = ref(false);
