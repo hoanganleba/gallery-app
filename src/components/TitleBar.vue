@@ -1,14 +1,28 @@
 <script setup>
 import { getCurrentWindow } from "@tauri-apps/api/window"; 
+import { ref } from 'vue';
 
 const appWindow = getCurrentWindow();
+const isProcessing = ref(false);
 
 const toggleMaximize = async () => {
-    const isMaximized = await appWindow.isMaximized();
-    if (isMaximized) {
-        await appWindow.unmaximize();
-    } else {
-        await appWindow.maximize();
+    if (isProcessing.value) return;
+    
+    isProcessing.value = true;
+    try {
+        const isMaximized = await appWindow.isMaximized();
+        if (isMaximized) {
+            await appWindow.unmaximize();
+        } else {
+            await appWindow.maximize();
+        }
+    } catch (error) {
+        console.error('Failed to toggle window state:', error);
+    } finally {
+        // Reset after a short delay to prevent rapid double-clicks
+        setTimeout(() => {
+            isProcessing.value = false;
+        }, 300);
     }
 };
 

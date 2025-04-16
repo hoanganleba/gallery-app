@@ -81,6 +81,19 @@ useEventListener(window, 'keydown', handleKeydown)
     <img draggable="false" :src="convertFileSrc(currentImage.path)" :alt="currentImage.name"
         class="object-contain h-full w-auto max-h-full" />
     <button
+        class="absolute transition-opacity duration-300 ease-in-out top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 border-none rounded-full text-gray-100 bg-gray-900/50 flex justify-center items-center p-4 z-[369] cursor-pointer hover:opacity-100 opacity-0"
+        @click="toggleSlideshow">
+        <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+            class="size-4.5">
+            <path
+                d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z" />
+        </svg>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4.5">
+            <path
+                d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5ZM12.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z" />
+        </svg>
+    </button>
+    <button
         class="absolute top-1/2 right-2 -translate-y-1/2 border-none rounded-full cursor-pointer text-gray-100 bg-gray-900/50 flex justify-center items-center p-4 z-[369] disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isLastImage" @click="nextImage">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4.5">
@@ -90,21 +103,7 @@ useEventListener(window, 'keydown', handleKeydown)
         </svg>
     </button>
     <div
-        class="absolute bottom-0 w-full bg-transparent text-gray-300 text-left px-3 py-2 text-[10px] flex items-center space-x-1.5 z-[369]">
-
-        <button class="cursor-pointer" @click="toggleSlideshow">
-            <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
-                class="size-4">
-                <path fill-rule="evenodd"
-                    d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm-.847-9.766A.75.75 0 0 0 6 5.866v4.268a.75.75 0 0 0 1.153.633l3.353-2.134a.75.75 0 0 0 0-1.266L7.153 5.234Z"
-                    clip-rule="evenodd" />
-            </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                <path fill-rule="evenodd"
-                    d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM5.5 5.5A.5.5 0 0 1 6 5h.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5v-5Zm4-.5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h.5a.5.5 0 0 0 .5-.5v-5A.5.5 0 0 0 10 5h-.5Z"
-                    clip-rule="evenodd" />
-            </svg>
-        </button>
-        <span>{{ currentIndex + 1 }} / {{ images.length }}</span>
+        class="absolute bottom-0 w-full bg-transparent text-gray-300 text-center px-3 py-2 text-[10px] z-[369]">
+        {{ currentIndex + 1 }} / {{ images.length }}
     </div>
 </template>

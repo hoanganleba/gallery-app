@@ -12,10 +12,10 @@
   "app": {
     "windows": [
       {
-        "title": "",
         "minHeight": 600,
         "minWidth": 800,
-        "titleBarStyle": "Overlay"
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "security": {
