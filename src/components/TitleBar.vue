@@ -1,11 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { getCurrentWindow } from "@tauri-apps/api/window"; 
 import { ref } from 'vue';
 
 const appWindow = getCurrentWindow();
-const isProcessing = ref(false);
+const isProcessing = ref<boolean>(false);
 
-const toggleMaximize = async () => {
+const toggleMaximize = async (): Promise<void> => {
     if (isProcessing.value) return;
     
     isProcessing.value = true;
