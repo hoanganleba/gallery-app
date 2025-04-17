@@ -1,20 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import TitleBar from './components/TitleBar.vue';
 
 import { invoke } from '@tauri-apps/api/core';
 import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
-import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { getCurrentWebview, WebviewWindow } from "@tauri-apps/api/webview";
 import Overlay from './components/Overlay.vue';
 import DropFolderViewer from './views/DropFolderViewer.vue';
 
 const ImageViewer = defineAsyncComponent(() => import('./views/ImageViewer.vue'));
 
-const images = ref([]);
-const loadSuccess = ref(false);
-const isOvering = ref(false);
+interface DragDropEventPayload {
+  type: "over" | "leave" | "drop";
+  paths?: string[];
+}
 
-const loadImagesFromFolder = (path) => {
-  invoke('read_images_directory', { path })
+const images = ref<string[]>([]);
+const loadSuccess = ref<boolean>(false);
+const isOvering = ref<boolean>(false);
+
+const loadImagesFromFolder = (path: string): void => {
+  invoke<string[]>('read_images_directory', { path })
     .then((data) => {
       if (data.length === 0) {
         console.error('No images found in the directory.');
@@ -29,18 +34,20 @@ const loadImagesFromFolder = (path) => {
 };
 
 onMounted(() => {
-  let unlisten;
+  let unlisten: (() => void) | undefined;
 
   try {
-    const webview = getCurrentWebview();
-    unlisten = webview.onDragDropEvent((event) => {
-      if (event.payload.type === "over") {
+    const webview: WebviewWindow = getCurrentWebview();
+    unlisten = webview.onDragDropEvent((event: { payload: DragDropEventPayload }) => {
+      const { type, paths } = event.payload;
+
+      if (type === "over") {
         isOvering.value = true;
-      } else if (event.payload.type === "leave") {
+      } else if (type === "leave") {
         isOvering.value = false;
-      } else if (event.payload.type === "drop" && event.payload.paths.length > 0) {
+      } else if (type === "drop" && paths && paths.length > 0) {
         isOvering.value = false;
-        loadImagesFromFolder(event.payload.paths[0]);
+        loadImagesFromFolder(paths[0]);
       } else {
         isOvering.value = false;
       }
@@ -55,14 +62,13 @@ onMounted(() => {
     }
   });
 });
-
 </script>
 
 <template>
   <div class="w-screen h-screen min-h-screen bg-black flex items-center justify-center relative overflow-hidden px-2 py-8">
     <TitleBar />
     <Overlay :isOvering="isOvering" />
-    <ImageViewer :images=images v-if="loadSuccess" />
+    <ImageViewer :images="images" v-if="loadSuccess" />
     <DropFolderViewer v-else />
   </div>
 </template>
