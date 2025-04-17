@@ -2,11 +2,7 @@
 import { ref, computed } from 'vue';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useEventListener, whenever, useIdle } from '@vueuse/core';
-
-interface Image {
-    path: string;
-    name: string;
-}
+import { Image } from '../types/Image';
 
 const props = defineProps<{
     images: Image[];

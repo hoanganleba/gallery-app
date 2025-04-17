@@ -1,25 +1,22 @@
 <script setup lang="ts">
 import TitleBar from './components/TitleBar.vue';
+import { Image } from './types/Image';
 
 import { invoke } from '@tauri-apps/api/core';
 import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
-import { getCurrentWebview, WebviewWindow } from "@tauri-apps/api/webview";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import Overlay from './components/Overlay.vue';
 import DropFolderViewer from './views/DropFolderViewer.vue';
+import { UnlistenFn } from '@tauri-apps/api/event';
 
 const ImageViewer = defineAsyncComponent(() => import('./views/ImageViewer.vue'));
 
-interface DragDropEventPayload {
-  type: "over" | "leave" | "drop";
-  paths?: string[];
-}
-
-const images = ref<string[]>([]);
+const images = ref<Image[]>([]);
 const loadSuccess = ref<boolean>(false);
 const isOvering = ref<boolean>(false);
 
 const loadImagesFromFolder = (path: string): void => {
-  invoke<string[]>('read_images_directory', { path })
+  invoke<Image[]>('read_images_directory', { path })
     .then((data) => {
       if (data.length === 0) {
         console.error('No images found in the directory.');
@@ -34,20 +31,18 @@ const loadImagesFromFolder = (path: string): void => {
 };
 
 onMounted(() => {
-  let unlisten: (() => void) | undefined;
+  let unlisten: Promise<UnlistenFn>;
 
   try {
-    const webview: WebviewWindow = getCurrentWebview();
-    unlisten = webview.onDragDropEvent((event: { payload: DragDropEventPayload }) => {
-      const { type, paths } = event.payload;
-
-      if (type === "over") {
+    const webview = getCurrentWebview();
+    unlisten = webview.onDragDropEvent((event) => {
+      if (event.payload.type === "over") {
         isOvering.value = true;
-      } else if (type === "leave") {
+      } else if (event.payload.type === "leave") {
         isOvering.value = false;
-      } else if (type === "drop" && paths && paths.length > 0) {
+      } else if (event.payload.type === "drop" && event.payload.paths && event.payload.paths.length > 0) {
         isOvering.value = false;
-        loadImagesFromFolder(paths[0]);
+        loadImagesFromFolder(event.payload.paths[0]);
       } else {
         isOvering.value = false;
       }
@@ -56,9 +51,9 @@ onMounted(() => {
     console.error("Error setting up drag and drop listener:", error);
   }
 
-  onUnmounted(() => {
+  onUnmounted(async () => {
     if (unlisten) {
-      unlisten();
+      (await unlisten)();
     }
   });
 });
