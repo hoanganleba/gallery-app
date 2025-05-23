@@ -16,18 +16,22 @@ watchEffect(async () => {
 })
 
 watch(currentIndex, () => {
-  imgLoaded.value = false
+    imgLoaded.value = false
 })
 
 function prev() {
     if (images.value.length === 0) return
-    currentIndex.value =
-        (currentIndex.value - 1 + images.value.length) % images.value.length
+    if (currentIndex.value !== 0) {
+        currentIndex.value =
+            (currentIndex.value - 1 + images.value.length) % images.value.length
+    }
 }
 
 function next() {
     if (images.value.length === 0) return
-    currentIndex.value = (currentIndex.value + 1) % images.value.length
+    if (currentIndex.value !== images.value.length - 1) {
+        currentIndex.value = (currentIndex.value + 1) % images.value.length
+    }
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -53,7 +57,8 @@ onUnmounted(() => {
     >
         <button
             @click="prev"
-            class="absolute text-neutral-300 left-6 z-10 cursor-pointer"
+            :disabled="currentIndex === 0"
+            class="absolute text-neutral-300 left-6 z-10 cursor-pointer transition duration-300 ease-in-out disabled:opacity-30 disabled:cursor-not-allowed"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -73,15 +78,20 @@ onUnmounted(() => {
         <img
             v-if="images.length > 0"
             draggable="false"
-            class="h-full w-auto object-contain transition-opacity duration-300 ease-in-out"
-            :class="imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'"
+            class="h-full w-auto object-contain transition duration-300 ease-in-out"
+            :class="
+                imgLoaded
+                    ? 'opacity-100 blur-0 scale-100'
+                    : 'opacity-0 blur-md scale-95'
+            "
             :src="convertFileSrc(images[currentIndex])"
             :key="convertFileSrc(images[currentIndex])"
             @load="imgLoaded = true"
         />
         <button
             @click="next"
-            class="absolute text-neutral-300 right-6 z-10 cursor-pointer"
+            :disabled="currentIndex === images.length - 1"
+            class="absolute text-neutral-300 right-6 z-10 cursor-pointer transition duration-300 ease-in-out disabled:opacity-30 disabled:cursor-not-allowed"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"

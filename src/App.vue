@@ -62,9 +62,9 @@ onMounted(async () => {
             leave-from-class="opacity-100 scale-100 blur-none" leave-to-class="opacity-0 scale-95 blur-sm">
             <Overlay v-if="isOverlay" />
         </transition>
-        <transition enter-active-class="transition-all duration-300 ease-out"
+        <transition enter-active-class="transition duration-300 ease-out"
             enter-from-class="opacity-0 blur-sm scale-95" enter-to-class="opacity-100 blur-0 scale-100"
-            leave-active-class="transition-all duration-300 ease-in" leave-from-class="opacity-100 blur-0 scale-100"
+            leave-active-class="transition duration-300 ease-in" leave-from-class="opacity-100 blur-0 scale-100"
             leave-to-class="opacity-0 blur-sm scale-95" mode="out-in">
             <DragAndDropView v-if="!folderPath" :openFolderFnProps="openFolder" />
             <ImageView v-else :folderPath="folderPath" :key="folderPath" />
