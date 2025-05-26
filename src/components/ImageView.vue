@@ -93,7 +93,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="w-full h-full flex justify-center items-center relative py-6 px-2">
+    <div class="w-full h-full flex justify-center items-center relative py-7.5 px-2.5">
         <div class="h-0.5 shadow-2xl shadow-indigo-800 absolute top-0 inset-x-1 rounded-full">
             <div class="h-full transition duration-150 bg-indigo-800" :style="`width: ${currentProgress}%`"></div>
         </div>
