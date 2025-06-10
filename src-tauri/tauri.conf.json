@@ -15,7 +15,8 @@
         "title": "",
         "minWidth": 800,
         "minHeight": 600,
-        "titleBarStyle": "Overlay"
+        "titleBarStyle": "Overlay",
+        "theme": "Dark"
       }
     ],
     "security": {
