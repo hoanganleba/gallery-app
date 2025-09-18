@@ -4,8 +4,8 @@ import { open } from '@tauri-apps/plugin-dialog'
 import { listen } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 
-const ImageView = defineAsyncComponent(
-    () => import('./components/ImageView.vue')
+const ImageVideoView = defineAsyncComponent(
+    () => import('./components/ImageVideoView.vue')
 )
 
 const DragAndDropView = defineAsyncComponent(() =>
@@ -107,8 +107,8 @@ onMounted(() => {
         <transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 blur-sm scale-95"
             enter-to-class="opacity-100 blur-0 scale-100" leave-active-class="transition duration-300 ease-in"
             leave-from-class="opacity-100 blur-0 scale-100" leave-to-class="opacity-0 blur-sm scale-95" mode="out-in">
-            <DragAndDropView v-if="!folderPath" :openFolderFnProps="openFolder" />
-            <ImageView v-else :folderPath="folderPath" :key="folderPath" />
+            <DragAndDropView v-if="!folderPath" />
+            <ImageVideoView v-else :folderPath="folderPath" :key="folderPath" />
         </transition>
     </div>
 </template>

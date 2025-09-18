@@ -5,7 +5,7 @@ import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 const props = defineProps<{ folderPath?: string }>()
 
 const imgLoaded = ref(false)
-const images = ref<string[]>([])
+const items = ref<string[]>([])
 const currentIndex = ref(0)
 const currentProgress = ref(0)
 const isPlay = ref(false)
@@ -13,36 +13,59 @@ const isDisplayPlayPauseButton = ref(false)
 
 let intervalId: any = null
 
+const videoPlayer = ref<HTMLVideoElement | null>(null)
+
 watchEffect(async () => {
-    images.value = await invoke('read_images_dir', {
+    const images = await invoke<string[]>('read_images_dir', {
         folderPath: props.folderPath,
     })
+
+    const videos = await invoke<string[]>('read_videos_dir', {
+        folderPath: props.folderPath,
+    })
+
+    items.value = [...images, ...videos]
+
     currentIndex.value = 0
 })
 
 watch(currentIndex, () => {
     imgLoaded.value = false
+
+    if (!isImage(currentIndex.value)) {
+        clearInterval(intervalId)
+        isPlay.value = false
+    }
 })
 
+const isImage = (index: number) => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(items.value[index])
+
 watch(currentProgress, () => {
+    // Only advance if the current item is an image
+    if (!isImage(currentIndex.value)) return
+
     if (currentProgress.value === 100) {
         next()
         currentProgress.value = 0
-    } if (currentIndex.value === images.value.length - 1) {
+    }
+    
+    if (currentIndex.value === items.value.length - 1) {
         clearInterval(intervalId)
         isPlay.value = false
     }
 })
 
 watch(isPlay, () => {
-    if (isPlay.value && currentIndex.value !== images.value.length - 1) {
+    // Only start interval if playing AND current item is an image
+    if (isPlay.value && currentIndex.value !== items.value.length - 1 && isImage(currentIndex.value)) {
         intervalId = setInterval(() => {
             currentProgress.value += 1
         }, 20)
     } else {
         clearInterval(intervalId)
     }
-    if (currentIndex.value !== images.value.length - 1) {
+
+    if (currentIndex.value !== items.value.length - 1) {
         isDisplayPlayPauseButton.value = true
         setTimeout(() => {
             isDisplayPlayPauseButton.value = false
@@ -51,25 +74,28 @@ watch(isPlay, () => {
 })
 
 function play() {
-    if (images.value.length === 0) return
-    if (currentIndex.value !== images.value.length - 1) {
+    if (items.value.length === 0) return
+
+    // Only toggle play if current item is an image
+    if (isImage(currentIndex.value) && currentIndex.value !== items.value.length - 1) {
         isPlay.value = !isPlay.value
     }
 }
 
 function prev() {
-    if (images.value.length === 0) return
+    if (items.value.length === 0) return
     if (currentIndex.value !== 0) {
         currentIndex.value =
-            (currentIndex.value - 1 + images.value.length) % images.value.length
+            (currentIndex.value - 1 + items.value.length) % items.value.length
     }
 }
 
-function next() {
-    if (images.value.length === 0) return
-    if (currentIndex.value !== images.value.length - 1) {
-        currentIndex.value = (currentIndex.value + 1) % images.value.length
-    }
+function next() { 
+    if (items.value.length === 0) return 
+    if (currentIndex.value !== items.value.length - 1) { 
+        currentIndex.value = 
+            (currentIndex.value + 1) % items.value.length 
+    } 
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -78,7 +104,20 @@ function handleKeydown(event: KeyboardEvent) {
     } else if (event.key === 'ArrowRight') {
         next()
     } else if (event.key === ' ') {
-        play()
+        // Only apply custom spacebar behavior for images
+        if (isImage(currentIndex.value)) {
+            event.preventDefault() // prevent scrolling
+            play()
+        } else {
+            // Video: toggle play/pause
+            if (videoPlayer.value) {
+                if (videoPlayer.value.paused) {
+                    videoPlayer.value.play()
+                } else {
+                    videoPlayer.value.pause()
+                }
+            }
+        }
     }
 }
 
@@ -106,11 +145,25 @@ onUnmounted(() => {
                     clip-rule="evenodd" />
             </svg>
         </button>
-        <img @click="play" v-if="images.length > 0" draggable="false"
-            class="h-full w-auto object-contain transition duration-300 ease-in-out" :class="imgLoaded
-                ? 'opacity-100 blur-0 scale-100'
-                : 'opacity-0 blur-md scale-95'
-                " :src="convertFileSrc(images[currentIndex])" :key="convertFileSrc(images[currentIndex])"
-            @load="imgLoaded = true" />
+        <template v-if="items.length > 0">
+            <img
+                v-if="isImage(currentIndex)"
+                @click="play"
+                draggable="false"
+                class="h-full w-auto object-contain transition duration-300 ease-in-out"
+                :class="imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'"
+                :src="convertFileSrc(items[currentIndex])"
+                :key="'img-' + convertFileSrc(items[currentIndex])"
+                @load="imgLoaded = true"
+            />
+            <video
+                v-else
+                controls
+                ref="videoPlayer"
+                class="h-full w-auto object-contain transition duration-300 ease-in-out"
+                :src="convertFileSrc(items[currentIndex])"
+                :key="'video-' + convertFileSrc(items[currentIndex])"
+            />
+        </template>
     </div>
 </template>
