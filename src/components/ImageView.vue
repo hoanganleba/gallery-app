@@ -93,18 +93,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="w-full h-full flex justify-center items-center relative py-7.5 px-2.5">
-        <div class="h-0.5 shadow-2xl shadow-indigo-800 absolute top-0 inset-x-1 rounded-full">
-            <div class="h-full transition duration-150 bg-indigo-800" :style="`width: ${currentProgress}%`"></div>
-        </div>
-        <button @click="prev" :disabled="currentIndex === 0 || isPlay"
-            class="absolute text-neutral-300/70 rounded-full left-2.5 bg-neutral-700/30 h-10.5 w-10.5 flex justify-center items-center z-10 cursor-pointer transition duration-300 ease-in-out disabled:opacity-30 disabled:cursor-not-allowed">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4 -ml-1">
-                <path fill-rule="evenodd"
-                    d="M7.72 12.53a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 1 1 1.06 1.06L9.31 12l6.97 6.97a.75.75 0 1 1-1.06 1.06l-7.5-7.5Z"
-                    clip-rule="evenodd" />
-            </svg>
-        </button>
+    <div class="w-full h-full flex justify-center items-center relative">
         <button @click="play" :class="isDisplayPlayPauseButton ? 'animate-ping' : 'opacity-0'"
             class="absolute top-1/2 z-10 text-neutral-300/70 h-8 w-8 flex justify-center items-center rounded-full bg-[#030609]/30 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-3.5"
@@ -123,13 +112,5 @@ onUnmounted(() => {
                 : 'opacity-0 blur-md scale-95'
                 " :src="convertFileSrc(images[currentIndex])" :key="convertFileSrc(images[currentIndex])"
             @load="imgLoaded = true" />
-        <button @click="next" :disabled="currentIndex === images.length - 1 || isPlay"
-            class="absolute text-neutral-300/70 right-2.5 bg-neutral-700/30 h-10.5 w-10.5 flex justify-center items-center rounded-full z-10 cursor-pointer transition duration-300 ease-in-out disabled:opacity-30 disabled:cursor-not-allowed">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4 -mr-0.5">
-                <path fill-rule="evenodd"
-                    d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                    clip-rule="evenodd" />
-            </svg>
-        </button>
     </div>
 </template>

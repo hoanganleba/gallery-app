@@ -2,6 +2,7 @@
 import { defineAsyncComponent, nextTick, onMounted, ref } from 'vue'
 import { open } from '@tauri-apps/plugin-dialog'
 import { listen } from '@tauri-apps/api/event'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 
 const ImageView = defineAsyncComponent(
     () => import('./components/ImageView.vue')
@@ -19,8 +20,11 @@ const Titlebar = defineAsyncComponent(() =>
     import('./components/TitleBar.vue')
 )
 
+const appWindow = getCurrentWindow()
+
 const folderPath = ref('')
 const isOverlay = ref(false)
+const isFullScreen = ref(false)
 
 function openFolder() {
     open({
@@ -38,6 +42,11 @@ onMounted(() => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'o') {
             e.preventDefault()
             openFolder()
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+            e.preventDefault()
+            isFullScreen.value = !isFullScreen.value
+            appWindow.setFullscreen(isFullScreen.value)
         }
     })
     if (import.meta.env.MODE === 'production') {
@@ -65,7 +74,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="w-screen h-screen bg-[#030609]">
+    <div class="w-screen h-screen bg-black">
         <Titlebar />
         <transition enter-active-class="transition duration-300 ease-out transform"
             enter-from-class="opacity-0 scale-95 blur-sm" enter-to-class="opacity-100 scale-100 blur-none"
