@@ -16,16 +16,15 @@ const Overlay = defineAsyncComponent(() =>
     import('./components/Overlay.vue')
 )
 
-const Titlebar = defineAsyncComponent(() =>
-    import('./components/TitleBar.vue')
-)
-
 const appWindow = getCurrentWindow()
 
 const folderPath = ref('')
 const isOverlay = ref(false)
 const isFullScreen = ref(false)
 const isActive = ref(true)
+const startTime = ref(0)
+const mouseHeldDuration = ref(0)
+
 let mouseTimeout: ReturnType<typeof setTimeout> | null = null
 
 function resetMouseTimeout() {
@@ -40,11 +39,21 @@ function openFolder() {
     open({
         multiple: false,
         directory: true,
-    }).then((file) => {
+    }).then((file: string) => {
         if (file) {
             folderPath.value = file
         }
     })
+}
+
+function startDragging() {
+    startTime.value = new Date().getTime();
+    appWindow.startDragging()
+}
+
+function stopDragging() {
+    const endTime = new Date().getTime();
+    mouseHeldDuration.value = (endTime - startTime.value) / 1000;
 }
 
 onMounted(() => {
@@ -73,7 +82,7 @@ onMounted(() => {
         listen('tauri://drag-leave', () => {
             isOverlay.value = false
         })
-        listen<{ paths: string[] }>('tauri://drag-drop', (event) => {
+        listen<{ paths: string[] }>('tauri://drag-drop', (event: any) => {
             const droppedPath = event.payload.paths[0]
             // Check if droppedPath looks like a directory (no file extension)
             if (droppedPath && !/\.[^\/\\]+$/.test(droppedPath)) {
@@ -86,18 +95,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <div
-        class="w-screen h-screen bg-black"
-        :class="[isActive ? 'cursor-default' : 'cursor-none']"
-    >
+    <div class="w-screen h-screen bg-black" :class="[isActive ? 'cursor-default' : 'cursor-none']"
+        @mousedown="startDragging" @mouseup="stopDragging" @dblclick="() => appWindow.toggleMaximize()">
         <transition name="cursor-fade">
-            <div
-                v-if="isActive"
-                class="fixed pointer-events-none inset-0 z-50"
-                style="transition: opacity 0.3s;"
-            ></div>
+            <div v-if="isActive" class="fixed pointer-events-none inset-0 z-50" style="transition: opacity 0.3s;"></div>
         </transition>
-        <Titlebar />
         <transition enter-active-class="transition duration-300 ease-out transform"
             enter-from-class="opacity-0 scale-95 blur-sm" enter-to-class="opacity-100 scale-100 blur-none"
             leave-active-class="transition duration-300 ease-in transform"
@@ -108,30 +110,34 @@ onMounted(() => {
             enter-to-class="opacity-100 blur-0 scale-100" leave-active-class="transition duration-300 ease-in"
             leave-from-class="opacity-100 blur-0 scale-100" leave-to-class="opacity-0 blur-sm scale-95" mode="out-in">
             <DragAndDropView v-if="!folderPath" />
-            <ImageVideoView v-else :folderPath="folderPath" :key="folderPath" />
+            <ImageVideoView v-else :folderPath="folderPath" :mouseHeldDuration="mouseHeldDuration" :key="folderPath" />
         </transition>
     </div>
 </template>
 
 <style scoped>
-    .cursor-none {
-        cursor: none !important;
-        transition: cursor 0.3s;
-    }
-    .cursor-default {
-        cursor: default !important;
-        transition: cursor 0.3s;
-    }
-    .cursor-fade-enter-active,
-    .cursor-fade-leave-active {
-        transition: opacity 0.3s;
-    }
-    .cursor-fade-enter-from,
-    .cursor-fade-leave-to {
-        opacity: 0;
-    }
-    .cursor-fade-enter-to,
-    .cursor-fade-leave-from {
-        opacity: 1;
-    }
+.cursor-none {
+    cursor: none !important;
+    transition: cursor 0.3s;
+}
+
+.cursor-default {
+    cursor: default !important;
+    transition: cursor 0.3s;
+}
+
+.cursor-fade-enter-active,
+.cursor-fade-leave-active {
+    transition: opacity 0.3s;
+}
+
+.cursor-fade-enter-from,
+.cursor-fade-leave-to {
+    opacity: 0;
+}
+
+.cursor-fade-enter-to,
+.cursor-fade-leave-from {
+    opacity: 1;
+}
 </style>

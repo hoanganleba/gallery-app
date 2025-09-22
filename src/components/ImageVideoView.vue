@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 
-const props = defineProps<{ folderPath?: string }>()
+const props = defineProps<{ folderPath?: string, mouseHeldDuration: number }>()
 
 const imgLoaded = ref(false)
 const items = ref<string[]>([])
@@ -12,6 +12,7 @@ const isPlay = ref(false)
 const isDisplayPlayPauseButton = ref(false)
 
 let intervalId: any = null
+let clickTimer: any = null
 
 const videoPlayer = ref<HTMLVideoElement | null>(null)
 
@@ -48,7 +49,7 @@ watch(currentProgress, () => {
         next()
         currentProgress.value = 0
     }
-    
+
     if (currentIndex.value === items.value.length - 1) {
         clearInterval(intervalId)
         isPlay.value = false
@@ -90,30 +91,32 @@ function prev() {
     }
 }
 
-function next() { 
-    if (items.value.length === 0) return 
-    if (currentIndex.value !== items.value.length - 1) { 
-        currentIndex.value = 
-            (currentIndex.value + 1) % items.value.length 
-    } 
+function next() {
+    if (items.value.length === 0) return
+    if (currentIndex.value !== items.value.length - 1) {
+        currentIndex.value =
+            (currentIndex.value + 1) % items.value.length
+    }
 }
 
 function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'ArrowLeft') {
-        if (!isPlay.value) {
+        if (!isPlay.value && isImage(currentIndex.value)) {
             prev()
+        } else {
+            (videoPlayer.value && videoPlayer.value.paused) && prev()
         }
     } else if (event.key === 'ArrowRight') {
-        if (!isPlay.value) {
+        if (!isPlay.value && isImage(currentIndex.value)) {
             next()
+        } else {
+            (videoPlayer.value && videoPlayer.value.paused) && next()
         }
     } else if (event.key === ' ') {
-        // Only apply custom spacebar behavior for images
         if (isImage(currentIndex.value)) {
-            event.preventDefault() // prevent scrolling
+            event.preventDefault()
             play()
         } else {
-            // Video: toggle play/pause
             if (videoPlayer.value) {
                 if (videoPlayer.value.paused) {
                     videoPlayer.value.play()
@@ -121,6 +124,20 @@ function handleKeydown(event: KeyboardEvent) {
                     videoPlayer.value.pause()
                 }
             }
+        }
+    }
+}
+
+function imageOnClick() {
+    if (props.mouseHeldDuration < 0.15) {
+        if (clickTimer === null) {
+            clickTimer = setTimeout(() => {
+                play();
+                clickTimer = null;
+            }, 181);
+        } else {
+            clearTimeout(clickTimer);
+            clickTimer = null;
         }
     }
 }
@@ -137,7 +154,7 @@ onUnmounted(() => {
 
 <template>
     <div class="w-full h-full flex justify-center items-center relative">
-        <button @click="play" :class="isDisplayPlayPauseButton ? 'animate-ping' : 'opacity-0'"
+        <button :class="isDisplayPlayPauseButton ? 'animate-ping' : 'opacity-0'"
             class="absolute top-1/2 z-10 text-neutral-300/70 h-8 w-8 flex justify-center items-center rounded-full bg-black/70 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-3.5"
                 :class="isPlay ? '-mr-0.5' : ''">
@@ -150,24 +167,14 @@ onUnmounted(() => {
             </svg>
         </button>
         <template v-if="items.length > 0">
-            <img
-                v-if="isImage(currentIndex)"
-                @click="play"
-                draggable="false"
-                class="h-full w-auto object-contain transition duration-300 ease-in-out"
+            <img v-if="isImage(currentIndex)" draggable="false" @click="imageOnClick"
+                class="h-full w-auto object-contain transition duration-300 ease-in-out select-none"
                 :class="imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'"
-                :src="convertFileSrc(items[currentIndex])"
-                :key="'img-' + convertFileSrc(items[currentIndex])"
-                @load="imgLoaded = true"
-            />
-            <video
-                v-else
-                controls
-                ref="videoPlayer"
+                :src="convertFileSrc(items[currentIndex])" :key="'img-' + convertFileSrc(items[currentIndex])"
+                @load="imgLoaded = true" />
+            <video v-else controls ref="videoPlayer"
                 class="h-full w-auto object-contain transition duration-300 ease-in-out"
-                :src="convertFileSrc(items[currentIndex])"
-                :key="'video-' + convertFileSrc(items[currentIndex])"
-            />
+                :src="convertFileSrc(items[currentIndex])" :key="'video-' + convertFileSrc(items[currentIndex])" />
         </template>
     </div>
 </template>
