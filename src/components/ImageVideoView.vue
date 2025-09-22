@@ -138,7 +138,7 @@ onUnmounted(() => {
 <template>
     <div class="w-full h-full flex justify-center items-center relative">
         <button @click="play" :class="isDisplayPlayPauseButton ? 'animate-ping' : 'opacity-0'"
-            class="absolute top-1/2 z-10 text-neutral-300/70 h-8 w-8 flex justify-center items-center rounded-full bg-[#030609]/30 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            class="absolute top-1/2 z-10 text-neutral-300/70 h-8 w-8 flex justify-center items-center rounded-full bg-black/70 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-3.5"
                 :class="isPlay ? '-mr-0.5' : ''">
                 <path v-if="isPlay" fill-rule="evenodd"
