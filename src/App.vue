@@ -39,7 +39,7 @@ function openFolder() {
     open({
         multiple: false,
         directory: true,
-    }).then((file: string) => {
+    }).then((file: any) => {
         if (file) {
             folderPath.value = file
         }
