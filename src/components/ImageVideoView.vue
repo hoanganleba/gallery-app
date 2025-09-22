@@ -100,9 +100,13 @@ function next() {
 
 function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'ArrowLeft') {
-        prev()
+        if (!isPlay.value) {
+            prev()
+        }
     } else if (event.key === 'ArrowRight') {
-        next()
+        if (!isPlay.value) {
+            next()
+        }
     } else if (event.key === ' ') {
         // Only apply custom spacebar behavior for images
         if (isImage(currentIndex.value)) {
