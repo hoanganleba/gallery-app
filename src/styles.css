@@ -1,12 +1,6 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: only dark;
-}
-
 html,
 body {
-  user-select: none;
-  overscroll-behavior: none;
-  overflow: hidden;
+  @apply select-none overscroll-none overflow-hidden rounded-md border-none
 }
