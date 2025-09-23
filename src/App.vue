@@ -95,7 +95,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="w-screen h-screen bg-black/85" :class="[isActive ? 'cursor-default' : 'cursor-none']"
+    <div class="w-screen h-screen bg-black/94" :class="[isActive ? 'cursor-default' : 'cursor-none']"
         @mousedown="startDragging" @mouseup="stopDragging" @dblclick="() => appWindow.toggleMaximize()">
         <transition name="cursor-fade">
             <div v-if="isActive" class="fixed pointer-events-none inset-0 z-50" style="transition: opacity 0.3s;"></div>

@@ -2,5 +2,5 @@
 
 html,
 body {
-  @apply select-none overscroll-none overflow-hidden rounded-md border-none
+  @apply select-none overscroll-none overflow-hidden rounded-md border-none bg-transparent
 }
