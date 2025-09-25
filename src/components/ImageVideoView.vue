@@ -18,6 +18,7 @@ const imgWidth = ref(0)
 const initImgHeight = ref(0)
 const initImgWidth = ref(0)
 const imgTranslateX = ref(0)
+const imgTranslateY = ref(0)
 const image = ref()
 
 let intervalId: any = null
@@ -174,11 +175,13 @@ function onImgLoaded() {
         imgWidth.value = Math.floor(img.naturalWidth * window.innerHeight / img.naturalHeight)
         initImgWidth.value = imgWidth.value
         imgTranslateX.value = Math.max(0, Math.floor((window.innerWidth - imgWidth.value) / 2))
+        imgTranslateY.value = 0
     } else {
         imgWidth.value = window.innerWidth
         initImgHeight.value = imgHeight.value
         imgHeight.value = Math.floor(img.naturalHeight * window.innerWidth / img.naturalWidth)
         initImgWidth.value = imgWidth.value
+        imgTranslateY.value = Math.max(0, Math.floor((window.innerHeight - imgHeight.value) / 2))
         imgTranslateX.value = 0
     }
 }
@@ -193,9 +196,11 @@ onMounted(() => {
             imgHeight.value = window.innerHeight
             imgWidth.value = Math.floor(img.naturalWidth * window.innerHeight / img.naturalHeight)
             imgTranslateX.value = Math.max(0, Math.floor((window.innerWidth - imgWidth.value) / 2))
+            imgTranslateY.value = 0
         } else {
             imgWidth.value = window.innerWidth
             imgHeight.value = Math.floor(img.naturalHeight * window.innerWidth / img.naturalWidth)
+            imgTranslateY.value = Math.max(0, Math.floor((window.innerHeight - imgHeight.value) / 2))
             imgTranslateX.value = 0
         }
     });
