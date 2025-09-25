@@ -11,10 +11,15 @@ const currentProgress = ref(0)
 const isPlay = ref(false)
 const isDisplayPlayPauseButton = ref(false)
 const scale = ref(1)
+const delta = ref(0)
 const isZooming = ref(false)
+const imgHeight = ref(0)
+const imgWidth = ref(0)
+const initImgHeight = ref(0)
+const initImgWidth = ref(0)
+const imgTranslateX = ref(0)
+const image = ref()
 
-let ticking = false
-let zoomTimer: any = null
 let intervalId: any = null
 let clickTimer: any = null
 
@@ -43,6 +48,12 @@ watch(currentIndex, () => {
         clearInterval(intervalId)
         isPlay.value = false
     }
+})
+
+watch(scale, () => {
+    imgWidth.value = initImgWidth.value * scale.value
+    imgHeight.value = initImgHeight.value * scale.value
+    imgTranslateX.value = Math.max(0, Math.floor((window.innerWidth - imgWidth.value) / 2))
 })
 
 watch(currentProgress, () => {
@@ -147,32 +158,47 @@ function imageOnClick() {
 }
 
 function onWheel(e: any) {
-    if (!isPlay.value) {
-        if (e.metaKey || e.ctrlKey) {
-            e.preventDefault()
-            const delta = e.deltaY > 0 ? -0.05 : 0.05
-            console.log(delta)
-            const newScale = Math.min(3, Math.max(1, scale.value + delta))
+    if (!isPlay.value && (e.metaKey || e.ctrlKey)) {
+        delta.value = e.deltaY > 0 ? -0.2 : 0.2
+        scale.value = Math.min(4, Math.max(1, scale.value + delta.value))
+    }
+}
 
-            isZooming.value = true
-            clearTimeout(zoomTimer)
-            zoomTimer = setTimeout(() => {
-                isZooming.value = false
-            }, 150)
+function onImgLoaded() {
+    const img = image.value
+    imgLoaded.value = true
 
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    scale.value = newScale
-                    ticking = false
-                })
-                ticking = true
-            }
-        }
+    if (img.naturalHeight >= img.naturalWidth) {
+        imgHeight.value = window.innerHeight
+        initImgHeight.value = imgHeight.value
+        imgWidth.value = Math.floor(img.naturalWidth * window.innerHeight / img.naturalHeight)
+        initImgWidth.value = imgWidth.value
+        imgTranslateX.value = Math.max(0, Math.floor((window.innerWidth - imgWidth.value) / 2))
+    } else {
+        imgWidth.value = window.innerWidth
+        initImgHeight.value = imgHeight.value
+        imgHeight.value = Math.floor(img.naturalHeight * window.innerWidth / img.naturalWidth)
+        initImgWidth.value = imgWidth.value
+        imgTranslateX.value = 0
     }
 }
 
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown)
+    window.addEventListener('resize', function () {
+        const img = image.value
+        delta.value = 0
+        scale.value = Math.min(4, Math.max(1, scale.value + delta.value))
+        if (img.naturalHeight >= img.naturalWidth) {
+            imgHeight.value = window.innerHeight
+            imgWidth.value = Math.floor(img.naturalWidth * window.innerHeight / img.naturalHeight)
+            imgTranslateX.value = Math.max(0, Math.floor((window.innerWidth - imgWidth.value) / 2))
+        } else {
+            imgWidth.value = window.innerWidth
+            imgHeight.value = Math.floor(img.naturalHeight * window.innerWidth / img.naturalWidth)
+            imgTranslateX.value = 0
+        }
+    });
 })
 
 onUnmounted(() => {
@@ -182,7 +208,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="w-full h-full flex justify-center items-center relative overflow-scroll scroll-smooth">
+    <div class="w-full h-full relative overflow-auto scroll-smooth">
         <button :class="isDisplayPlayPauseButton ? 'animate-ping' : 'opacity-0'"
             class="absolute top-1/2 z-10 text-neutral-300/70 h-8 w-8 flex justify-center items-center rounded-full bg-black/70 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-3.5"
@@ -196,13 +222,15 @@ onUnmounted(() => {
             </svg>
         </button>
         <template v-if="items.length > 0">
-            <img v-if="isImage(currentIndex)" :style="{ transform: `scale(${scale})` }" draggable="false"
-                @click="imageOnClick" class="will-change-transform max-w-full max-h-full select-none" @wheel="onWheel"
-                :class="[
-                    !isZooming && 'transition duration-300 ease-in-out',
-                    imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'
-                ]" :src="convertFileSrc(items[currentIndex])" :key="'img-' + convertFileSrc(items[currentIndex])"
-                @load="imgLoaded = true" />
+            <div @wheel="onWheel" v-if="isImage(currentIndex)" class="transition duration-75"
+                :style="{ height: `${imgHeight}px`, width: `${imgWidth}px`, transform: `translateX(${imgTranslateX}px)` }">
+                <img ref="image" draggable="false" @click="imageOnClick"
+                    class="select-none w-full h-full" :class="[
+                        !isZooming && 'transition duration-300 ease-in-out',
+                        imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'
+                    ]" :src="convertFileSrc(items[currentIndex])" :key="'img-' + convertFileSrc(items[currentIndex])"
+                    @load="onImgLoaded" />
+            </div>
             <video v-else controls ref="videoPlayer"
                 class="h-full w-auto object-contain transition duration-300 ease-in-out"
                 :src="convertFileSrc(items[currentIndex])" :key="'video-' + convertFileSrc(items[currentIndex])" />
