@@ -10,11 +10,16 @@ const currentIndex = ref(0)
 const currentProgress = ref(0)
 const isPlay = ref(false)
 const isDisplayPlayPauseButton = ref(false)
+const scale = ref(1)
+const isZooming = ref(false)
 
+let ticking = false
+let zoomTimer: any = null
 let intervalId: any = null
 let clickTimer: any = null
 
 const videoPlayer = ref<HTMLVideoElement | null>(null)
+const isImage = (index: number) => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(items.value[index])
 
 watchEffect(async () => {
     const images = await invoke<string[]>('read_images_dir', {
@@ -32,14 +37,13 @@ watchEffect(async () => {
 
 watch(currentIndex, () => {
     imgLoaded.value = false
+    scale.value = 1
 
     if (!isImage(currentIndex.value)) {
         clearInterval(intervalId)
         isPlay.value = false
     }
 })
-
-const isImage = (index: number) => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(items.value[index])
 
 watch(currentProgress, () => {
     // Only advance if the current item is an image
@@ -142,6 +146,31 @@ function imageOnClick() {
     }
 }
 
+function onWheel(e: any) {
+    if (!isPlay.value) {
+        if (e.metaKey || e.ctrlKey) {
+            e.preventDefault()
+            const delta = e.deltaY > 0 ? -0.05 : 0.05
+            console.log(delta)
+            const newScale = Math.min(3, Math.max(1, scale.value + delta))
+
+            isZooming.value = true
+            clearTimeout(zoomTimer)
+            zoomTimer = setTimeout(() => {
+                isZooming.value = false
+            }, 150)
+
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    scale.value = newScale
+                    ticking = false
+                })
+                ticking = true
+            }
+        }
+    }
+}
+
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown)
 })
@@ -153,7 +182,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="w-full h-full flex justify-center items-center relative">
+    <div class="w-full h-full flex justify-center items-center relative overflow-scroll scroll-smooth">
         <button :class="isDisplayPlayPauseButton ? 'animate-ping' : 'opacity-0'"
             class="absolute top-1/2 z-10 text-neutral-300/70 h-8 w-8 flex justify-center items-center rounded-full bg-black/70 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-3.5"
@@ -167,10 +196,12 @@ onUnmounted(() => {
             </svg>
         </button>
         <template v-if="items.length > 0">
-            <img v-if="isImage(currentIndex)" draggable="false" @click="imageOnClick"
-                class="h-full w-auto object-contain transition duration-300 ease-in-out select-none"
-                :class="imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'"
-                :src="convertFileSrc(items[currentIndex])" :key="'img-' + convertFileSrc(items[currentIndex])"
+            <img v-if="isImage(currentIndex)" :style="{ transform: `scale(${scale})` }" draggable="false"
+                @click="imageOnClick" class="will-change-transform max-w-full max-h-full select-none" @wheel="onWheel"
+                :class="[
+                    !isZooming && 'transition duration-300 ease-in-out',
+                    imgLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-md scale-95'
+                ]" :src="convertFileSrc(items[currentIndex])" :key="'img-' + convertFileSrc(items[currentIndex])"
                 @load="imgLoaded = true" />
             <video v-else controls ref="videoPlayer"
                 class="h-full w-auto object-contain transition duration-300 ease-in-out"
